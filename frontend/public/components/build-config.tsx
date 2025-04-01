@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, redirect } from 'react-router-dom-v5-compat';
 import * as classNames from 'classnames';
 import { sortable } from '@patternfly/react-table';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import {
   K8sResourceKind,
   K8sResourceKindReference,
@@ -42,7 +43,7 @@ import {
 } from './build';
 import { ResourceEventStream } from './events';
 import { BuildConfigModel, BuildModel } from '../models';
-import Helmet from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { useK8sWatchResource } from './utils/k8s-watch-hook';
 import { Status } from '@console/shared';
 import { displayDurationInWords } from './utils/build-utils';
@@ -109,7 +110,7 @@ export const BuildConfigsDetails: React.SFC<BuildConfigsDetailsProps> = ({ obj: 
   const { t } = useTranslation();
   return (
     <>
-      <div className="co-m-pane__body">
+      <PaneBody>
         {hasPipeline && <PipelineBuildStrategyAlert obj={buildConfig} />}
         <SectionHeading text={t('public~BuildConfig details')} />
         <div className="row">
@@ -120,7 +121,7 @@ export const BuildConfigsDetails: React.SFC<BuildConfigsDetailsProps> = ({ obj: 
             <BuildStrategy resource={buildConfig} />
           </div>
         </div>
-      </div>
+      </PaneBody>
       <WebhookTriggers resource={buildConfig} />
       <BuildHooks resource={buildConfig} />
     </>
@@ -405,9 +406,7 @@ export const BuildConfigsPage: React.FC<BuildConfigsPageProps> = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>{t('public~BuildConfigs')}</title>
-      </Helmet>
+      <DocumentTitle>{t('public~BuildConfigs')}</DocumentTitle>
       <ListPage
         {...props}
         title={t('public~BuildConfigs')}

@@ -1,9 +1,10 @@
 import * as React from 'react';
-import Helmet from 'react-helmet';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom-v5-compat';
 import { CatalogItem } from '@console/dynamic-plugin-sdk/src/extensions';
 import { CatalogController, CatalogServiceProvider } from '@console/shared';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import CatalogPageHelpText from '../catalog/CatalogPageHelpText';
 import NamespacedPage, { NamespacedPageVariants } from '../NamespacedPage';
 import CreateProjectListPage, { CreateAProjectButton } from '../projects/CreateProjectListPage';
 
@@ -18,9 +19,7 @@ const SampleCatalog: React.FC = () => {
   };
   return (
     <>
-      <Helmet>
-        <title>{t('devconsole~Samples')}</title>
-      </Helmet>
+      <DocumentTitle>{t('devconsole~Samples')}</DocumentTitle>
       <NamespacedPage variant={NamespacedPageVariants.light} hideApplications>
         {namespace ? (
           <CatalogServiceProvider namespace={namespace} catalogId="samples-catalog">
@@ -53,10 +52,12 @@ const SampleCatalog: React.FC = () => {
         ) : (
           <CreateProjectListPage title={t('devconsole~Samples')}>
             {(openProjectModal) => (
-              <Trans t={t} ns="devconsole">
-                Select a Project to view the list of samples
-                <CreateAProjectButton openProjectModal={openProjectModal} />.
-              </Trans>
+              <CatalogPageHelpText>
+                <Trans t={t} ns="devconsole">
+                  Select a Project to view the list of samples
+                  <CreateAProjectButton openProjectModal={openProjectModal} />.
+                </Trans>
+              </CatalogPageHelpText>
             )}
           </CreateProjectListPage>
         )}

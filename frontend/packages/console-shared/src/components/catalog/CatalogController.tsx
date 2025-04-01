@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import Helmet from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom-v5-compat';
 import { ResolvedExtension, CatalogItemType } from '@console/dynamic-plugin-sdk';
@@ -12,7 +11,9 @@ import {
   removeQueryArgument,
   setQueryArgument,
 } from '@console/internal/components/utils';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { useQueryParams } from '../../hooks';
+import PageBody from '../layout/PageBody';
 import CatalogView from './catalog-view/CatalogView';
 import CatalogTile from './CatalogTile';
 import CatalogDetailsModal from './details/CatalogDetailsModal';
@@ -181,10 +182,8 @@ const CatalogController: React.FC<CatalogControllerProps> = ({
 
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
-      <div className="co-m-page__body">
+      <DocumentTitle>{title}</DocumentTitle>
+      <PageBody>
         <div className="co-catalog">
           <PageHeading title={title} breadcrumbs={type ? breadcrumbs : null} />
           <p data-test-id="catalog-page-description" className="co-catalog-page__description">
@@ -214,7 +213,7 @@ const CatalogController: React.FC<CatalogControllerProps> = ({
             </StatusBox>
           </div>
         </div>
-      </div>
+      </PageBody>
     </>
   );
 };

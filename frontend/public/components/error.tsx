@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   CodeBlock,
@@ -15,6 +15,7 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { t_global_icon_color_status_danger_default as globalDangerColor100 } from '@patternfly/react-tokens';
 
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { PageHeading } from './utils';
 import { useLocation } from 'react-router';
 
@@ -22,11 +23,11 @@ const ErrorComponent: React.FC<ErrorComponentProps> = ({ title, message }) => {
   const { t } = useTranslation();
   return (
     <>
-      <PageHeading title={t('public~Error')} detail />
-      <div className="co-m-pane__body" data-test-id="error-page">
+      <PageHeading title={t('public~Error')} hideFavoriteButton />
+      <PaneBody data-test-id="error-page">
         <PageHeading title={title} centerText />
         {message && <div className="pf-v6-u-text-align-center">{message}</div>}
-      </div>
+      </PaneBody>
     </>
   );
 };
@@ -35,9 +36,7 @@ export const ErrorPage404: React.FC<ErrorPage404Props> = (props) => {
   const { t } = useTranslation();
   return (
     <div>
-      <Helmet>
-        <title>{t('public~Page Not Found (404)')}</title>
-      </Helmet>
+      <DocumentTitle>{t('public~Page Not Found (404)')}</DocumentTitle>
       <ErrorComponent title={t('public~404: Page Not Found')} message={props.message} />
     </div>
   );
@@ -126,9 +125,7 @@ export const AuthenticationErrorPage: React.FC = () => {
   const title = t('public~Authentication error');
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
+      <DocumentTitle>{title}</DocumentTitle>
       <EmptyState titleText={<Title headingLevel="h1">{title}</Title>} icon={ExclamationCircleIcon}>
         <EmptyStateBody>
           <Stack>

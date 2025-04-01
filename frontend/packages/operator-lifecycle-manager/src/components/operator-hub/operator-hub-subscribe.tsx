@@ -9,7 +9,6 @@ import {
   Title,
 } from '@patternfly/react-core';
 import * as _ from 'lodash';
-import { Helmet } from 'react-helmet';
 import { Trans, useTranslation } from 'react-i18next';
 import { useLocation, Link } from 'react-router-dom-v5-compat';
 import { RadioGroup, RadioInput } from '@console/internal/components/radio';
@@ -51,6 +50,8 @@ import {
   referenceForModel,
 } from '@console/internal/module/k8s';
 import { fromRequirements } from '@console/internal/module/k8s/selector';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { CONSOLE_OPERATOR_CONFIG_NAME } from '@console/shared/src/constants';
 import { SubscriptionModel, OperatorGroupModel, PackageManifestModel } from '../../models';
 import {
@@ -854,9 +855,7 @@ export const OperatorHubSubscribeForm: React.FC<OperatorHubSubscribeFormProps> =
 
   return (
     <>
-      <Helmet>
-        <title>Operator Installation</title>
-      </Helmet>
+      <DocumentTitle>Operator Installation</DocumentTitle>
       <PageHeading
         title={t('olm~Install Operator')}
         breadcrumbs={[
@@ -867,7 +866,7 @@ export const OperatorHubSubscribeForm: React.FC<OperatorHubSubscribeFormProps> =
           'olm~Install your Operator by subscribing to one of the update channels to keep the Operator up to date. The strategy determines either manual or automatic updates.',
         )}
       />
-      <div className="co-m-pane__body">
+      <PaneBody>
         {tokenizedAuth === 'AWS' && showCSTokenWarn && (
           <CloudServiceTokenWarningAlert
             title={t('olm~Cluster in STS Mode')}
@@ -1191,7 +1190,7 @@ export const OperatorHubSubscribeForm: React.FC<OperatorHubSubscribeFormProps> =
             </div>
           </div>
         </div>
-      </div>
+      </PaneBody>
     </>
   );
 };

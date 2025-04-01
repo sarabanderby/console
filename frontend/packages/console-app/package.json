@@ -15,7 +15,6 @@
     "@console/internal": "0.0.0-fixed",
     "@console/insights-plugin": "0.0.0-fixed",
     "@console/knative-plugin": "0.0.0-fixed",
-    "@console/local-storage-operator-plugin": "0.0.0-fixed",
     "@console/metal3-plugin": "0.0.0-fixed",
     "@console/operator-lifecycle-manager": "0.0.0-fixed",
     "@console/operator-lifecycle-manager-v1": "0.0.0-fixed",
@@ -70,7 +69,8 @@
       "consolePluginBackendDetail": "src/components/console-operator/ConsolePluginBackendDetail.tsx",
       "consolePluginProxyDetail": "src/components/console-operator/ConsolePluginProxyDetail.tsx",
       "getConsoleOperatorConfigFlag": "src/hooks/useCanGetConsoleOperatorConfig.ts",
-      "usePerspectivesAvailable": "src/components/user-preferences/perspective/usePerspectivesAvailable.ts"
+      "usePerspectivesAvailable": "src/components/user-preferences/perspective/usePerspectivesAvailable.ts",
+      "defaultProvider": "src/actions/providers/default-provider.ts"
     }
   }
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
 import * as _ from 'lodash-es';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import * as classNames from 'classnames';
 import {
   ActionGroup,
@@ -22,6 +22,7 @@ import { CompressIcon, ExpandIcon } from '@patternfly/react-icons/dist/js/icons'
 import { useTranslation } from 'react-i18next';
 
 import { ANNOTATIONS, withActivePerspective } from '@console/shared';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 
 import { Perspective, isPerspective } from '@console/dynamic-plugin-sdk';
 import { withExtensions } from '@console/plugin-sdk';
@@ -417,15 +418,13 @@ export const InstantiateTemplatePage: React.FC<{}> = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
+      <DocumentTitle>{title}</DocumentTitle>
       <PageHeading title={title} />
-      <div className="co-m-pane__body co-m-pane__body--no-top-margin">
+      <PaneBody>
         <Firehose resources={resources}>
           <TemplateForm preselectedNamespace={preselectedNamespace} {...(props as any)} />
         </Firehose>
-      </div>
+      </PaneBody>
     </>
   );
 };

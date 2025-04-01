@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { ActionGroup, Button } from '@patternfly/react-core';
 
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { SecretModel, ConfigMapModel } from '../../models';
 import { IdentityProvider, k8sCreate, OAuthKind } from '../../module/k8s';
 import { ButtonBar, PageHeading } from '../utils';
@@ -143,17 +144,15 @@ export const AddGitLabPage = () => {
 
   return (
     <div className="co-m-pane__form">
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
+      <DocumentTitle>{title}</DocumentTitle>
       <PageHeading
         title={title}
         helpText={t(
           'public~You can use GitLab integration for users authenticating with GitLab credentials.',
         )}
       />
-      <div className="co-m-pane__body">
-        <form onSubmit={submit} name="form" className="co-m-pane__body-group">
+      <PaneBody>
+        <form onSubmit={submit} name="form">
           <IDPNameInput value={name} onChange={(e) => setName(e.currentTarget.value)} />
           <div className="form-group">
             <label className="control-label co-required" htmlFor="url">
@@ -213,7 +212,7 @@ export const AddGitLabPage = () => {
             </ActionGroup>
           </ButtonBar>
         </form>
-      </div>
+      </PaneBody>
     </div>
   );
 };

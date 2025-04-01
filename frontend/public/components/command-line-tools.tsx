@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import * as _ from 'lodash-es';
 import { useTranslation } from 'react-i18next';
 import { Button, Divider } from '@patternfly/react-core';
@@ -7,6 +7,7 @@ import { Button, Divider } from '@patternfly/react-core';
 import { FLAGS, useCopyLoginCommands } from '@console/shared';
 import PrimaryHeading from '@console/shared/src/components/heading/PrimaryHeading';
 import SecondaryHeading from '@console/shared/src/components/heading/SecondaryHeading';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { ExternalLink, Firehose, FirehoseResult } from './utils';
 import { connectToFlags } from '../reducers/connectToFlags';
 import { ConsoleCLIDownloadModel } from '../models';
@@ -57,10 +58,8 @@ export const CommandLineTools: React.FC<CommandLineToolsProps> = ({ obj }) => {
 
   return (
     <>
-      <Helmet>
-        <title>{t('public~Command Line Tools')}</title>
-      </Helmet>
-      <div className="co-m-pane__body">
+      <DocumentTitle>{t('public~Command Line Tools')}</DocumentTitle>
+      <PaneBody>
         <PrimaryHeading>
           <div className="co-m-pane__name">{t('public~Command Line Tools')}</div>
         </PrimaryHeading>
@@ -77,7 +76,7 @@ export const CommandLineTools: React.FC<CommandLineToolsProps> = ({ obj }) => {
           </>
         )}
         {additionalCommandLineTools}
-      </div>
+      </PaneBody>
     </>
   );
 };

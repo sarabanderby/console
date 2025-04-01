@@ -350,6 +350,7 @@ export type ListPageHeaderProps = {
   title: string;
   helpText?: React.ReactNode;
   badge?: React.ReactNode;
+  hideFavoriteButton?: boolean;
 };
 
 export type CreateWithPermissionsProps = {
@@ -901,3 +902,8 @@ export interface PodRCData {
   isRollingOut: boolean;
   pods: ExtPodKind[];
 }
+
+export type DocumentTitleProps = {
+  /** The title to display */
+  children: string;
+};

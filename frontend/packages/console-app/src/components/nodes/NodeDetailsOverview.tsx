@@ -16,6 +16,7 @@ import {
 import { DetailsItem } from '@console/internal/components/utils/details-item';
 import { NodeModel, MachineModel } from '@console/internal/models';
 import { NodeKind, referenceForModel } from '@console/internal/module/k8s';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { useLabelsModal } from '@console/shared/src/hooks/useLabelsModal';
 import {
   getNodeMachineNameAndNamespace,
@@ -42,7 +43,7 @@ const NodeDetailsOverview: React.FC<NodeDetailsOverviewProps> = ({ node }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="co-m-pane__body">
+    <PaneBody>
       <SectionHeading text={t('console-app~Node details')} />
       <div className="row">
         <div className="col-md-6 col-xs-12">
@@ -151,7 +152,7 @@ const NodeDetailsOverview: React.FC<NodeDetailsOverviewProps> = ({ node }) => {
             <dt>{t('console-app~OS image')}</dt>
             <dd>{_.get(node, 'status.nodeInfo.osImage', '-')}</dd>
             <dt>{t('console-app~Architecture')}</dt>
-            <dd className="text-uppercase">{_.get(node, 'status.nodeInfo.architecture', '-')}</dd>
+            <dd>{_.get(node, 'status.nodeInfo.architecture', '-')}</dd>
             <dt>{t('console-app~Kernel version')}</dt>
             <dd>{_.get(node, 'status.nodeInfo.kernelVersion', '-')}</dd>
             <dt>{t('console-app~Boot ID')}</dt>
@@ -165,7 +166,7 @@ const NodeDetailsOverview: React.FC<NodeDetailsOverviewProps> = ({ node }) => {
           </dl>
         </div>
       </div>
-    </div>
+    </PaneBody>
   );
 };
 

@@ -1,6 +1,6 @@
 import * as _ from 'lodash-es';
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom-v5-compat';
 import {
@@ -10,7 +10,6 @@ import {
   AccordionToggle,
   Button,
   ButtonVariant,
-  Divider,
   PageSection,
   Content,
   Toolbar,
@@ -225,9 +224,7 @@ const SearchPage_: React.FC<SearchProps> = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>{t('public~Search')}</title>
-      </Helmet>
+      <DocumentTitle>{t('public~Search')}</DocumentTitle>{' '}
       <PageSection hasBodyWrapper={false}>
         <Content component="h1">{t('public~Search')}</Content>
         <Toolbar
@@ -286,7 +283,6 @@ const SearchPage_: React.FC<SearchProps> = (props) => {
           </ToolbarContent>
         </Toolbar>
       </PageSection>
-      <Divider component="div" />
       <PageSection hasBodyWrapper={false}>
         <Accordion asDefinitionList={false}>
           {[...selectedItems].map((resource) => {

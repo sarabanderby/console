@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { Link, useParams } from 'react-router-dom-v5-compat';
-import { Helmet } from 'react-helmet';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { Label, LabelGroup, Button, ButtonSize, ButtonVariant } from '@patternfly/react-core';
 
 import { Trans, useTranslation } from 'react-i18next';
@@ -38,6 +38,7 @@ import {
 import { EventStreamList } from './utils/event-stream';
 import { ActionMenu, ActionMenuVariant, ActionServiceProvider } from '@console/shared';
 import ActionMenuItem from '@console/shared/src/components/actions/menu/ActionMenuItem';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 
 const maxMessages = 500;
 const flushInterval = 500;
@@ -252,7 +253,7 @@ export const EventsList = (props) => {
 
   return (
     <>
-      <PageHeading detail={true} title={props.title}>
+      <PageHeading title={props.title}>
         <div className="co-search-group">
           <ResourceListDropdown
             onChange={toggleSelected}
@@ -273,8 +274,8 @@ export const EventsList = (props) => {
             onChange={(_event, val) => setTextFilter(val || '')}
           />
         </div>
-        <div className="form-group">
-          {selected.size > 0 && (
+        {selected.size > 0 && (
+          <div className="form-group">
             <LabelGroup
               key="resources-category"
               categoryName={t('public~Resource')}
@@ -293,8 +294,8 @@ export const EventsList = (props) => {
                 );
               })}
             </LabelGroup>
-          )}
-        </div>
+          </div>
+        )}
       </PageHeading>
       <EventStream
         {...props}
@@ -343,9 +344,7 @@ export const EventStreamPage = withStartGuide(({ noProjectsAvailable, ...rest })
   const title = t('public~Events');
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
+      <DocumentTitle>{title}</DocumentTitle>
       <EventsList
         {...rest}
         autoFocus={!noProjectsAvailable}
@@ -501,7 +500,7 @@ const EventStream = ({
       : t('public~Showing most recent {{count}} event', { count });
 
   return (
-    <div className="co-m-pane__body">
+    <PaneBody>
       <div className="co-sysevent-stream">
         <div className="co-sysevent-stream__status">
           <div className="co-sysevent-stream__timeline__btn-text">{statusBtnTxt}</div>
@@ -523,7 +522,7 @@ const EventStream = ({
         {count > 0 && <EventStreamList events={filteredEvents} EventComponent={Inner} />}
         {sysEventStatus}
       </div>
-    </div>
+    </PaneBody>
   );
 };
 

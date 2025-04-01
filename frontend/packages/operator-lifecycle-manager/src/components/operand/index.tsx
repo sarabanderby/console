@@ -67,6 +67,7 @@ import {
   useActiveNamespace,
 } from '@console/shared';
 import ErrorAlert from '@console/shared/src/components/alerts/error';
+import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { useK8sModel } from '@console/shared/src/hooks/useK8sModel';
 import { useK8sModels } from '@console/shared/src/hooks/useK8sModels';
 import { useResourceDetailsPage } from '@console/shared/src/hooks/useResourceDetailsPage';
@@ -445,7 +446,7 @@ export const ProvidedAPIsPage = (props: ProvidedAPIsPageProps) => {
 
   return inFlight ? null : (
     <>
-      <ListPageHeader title={showTitle ? t('olm~All Instances') : undefined}>
+      <ListPageHeader title={showTitle ? t('olm~All Instances') : undefined} hideFavoriteButton>
         {managesAllNamespaces && (
           <div className="co-operator-details__toggle-value pf-v6-u-ml-xl-on-md">
             <ShowOperandsInAllNamespacesRadioGroup />
@@ -513,7 +514,7 @@ const DefaultProvidedAPIPage: React.FC<DefaultProvidedAPIPageProps> = (props) =>
 
   return (
     <>
-      <ListPageHeader title={showTitle ? `${labelPlural}` : undefined}>
+      <ListPageHeader title={showTitle ? `${labelPlural}` : undefined} hideFavoriteButton>
         {managesAllNamespaces && (
           <div className="co-operator-details__toggle-value pf-v6-u-ml-xl-on-md">
             <ShowOperandsInAllNamespacesRadioGroup />
@@ -659,7 +660,7 @@ export const OperandDetails = connectToModel(({ crd, csv, kindObj, obj }: Operan
 
   return (
     <div className="co-operand-details co-m-pane">
-      <div className="co-m-pane__body">
+      <PaneBody>
         {errorMessage && <ErrorAlert message={errorMessage} />}
         <SectionHeading text={t('olm~{{kind}} overview', { kind: displayName || kind })} />
         <PodStatuses
@@ -696,9 +697,9 @@ export const OperandDetails = connectToModel(({ crd, csv, kindObj, obj }: Operan
             )}
           </div>
         </div>
-      </div>
+      </PaneBody>
       {!_.isEmpty(specDescriptors) && (
-        <div className="co-m-pane__body">
+        <PaneBody>
           <div className="co-operand-details__section co-operand-details__section--info">
             <div className="row">
               <DescriptorDetailsItemList
@@ -712,14 +713,14 @@ export const OperandDetails = connectToModel(({ crd, csv, kindObj, obj }: Operan
               />
             </div>
           </div>
-        </div>
+        </PaneBody>
       )}
       {Array.isArray(status?.conditions) &&
         (conditionsStatusDescriptors ?? []).every(({ path }) => path !== 'conditions') && (
-          <div className="co-m-pane__body" data-test="status.conditions">
+          <PaneBody data-test="status.conditions">
             <SectionHeading data-test="operand-conditions-heading" text={t('public~Conditions')} />
             <Conditions conditions={status.conditions} />
-          </div>
+          </PaneBody>
         )}
       {conditionsStatusDescriptors?.length > 0 &&
         conditionsStatusDescriptors.map((descriptor) => (

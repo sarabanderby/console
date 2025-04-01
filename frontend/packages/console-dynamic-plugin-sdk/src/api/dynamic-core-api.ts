@@ -4,6 +4,7 @@ import { ActionServiceProviderProps } from '../extensions/actions';
 import {
   CodeEditorProps,
   CodeEditorRef,
+  DocumentTitleProps,
   ErrorBoundaryFallbackProps,
   HorizontalNavProps,
   InventoryItemBodyProps,
@@ -26,16 +27,16 @@ import {
   TableDataProps,
   TimestampProps,
   UseActiveColumns,
+  UseActiveNamespace,
   UseAnnotationsModal,
   UseDeleteModal,
   UseLabelsModal,
   UseListPageFilter,
   UsePrometheusPoll,
-  UseResolvedExtensions,
-  VirtualizedTableFC,
-  UseActiveNamespace,
-  UseUserSettings,
   UseQuickStartContext,
+  UseResolvedExtensions,
+  UseUserSettings,
+  VirtualizedTableFC,
 } from '../extensions/console-types';
 import { StatusPopupSectionProps, StatusPopupItemProps } from '../extensions/dashboard-types';
 
@@ -171,6 +172,7 @@ export const useActiveColumns: UseActiveColumns = require('@console/internal/com
  * @param {string} title - heading title
  * @param {ReactNode} [helpText] -  (optional) help section as react node
  * @param {ReactNode} [badge] -  (optional) badge icon as react node
+ * @param {boolean} [hideFavoriteButton] - (Optional) If true, hides the Favorite button. By default, the Favorite button is displayed, allowing users to add a page as a favorite. Generally, you should use `hideFavoriteButton` when `ListPageHeader` is not the primary page header to avoid duplicate favorite buttons on the page.
  * @example
  * ```ts
  * const exampleList: React.FC = () => {
@@ -665,6 +667,19 @@ export const ResourceYAMLEditor: React.FC<ResourceYAMLEditorProps> = require('@c
  */
 export const ResourceEventStream: React.FC<ResourceEventStreamProps> = require('@console/internal/components/events')
   .WrappedResourceEventStream;
+
+/**
+ * A component to change the document title of the page.
+ * @example
+ * ```tsx
+ * <DocumentTitle>My Page Title</DocumentTitle>
+ * ```
+ * This will change the title to "My Page Title · [Product Name]"
+ *
+ * @param {DocumentTitleProps['string']} children - The title to display
+ */
+export const DocumentTitle: React.FC<DocumentTitleProps> = require('@console/shared/src/components/document-title/DocumentTitle')
+  .DocumentTitle;
 
 /**
  * Sets up a poll to Prometheus for a single query.

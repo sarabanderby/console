@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Helmet } from 'react-helmet';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom-v5-compat';
 import { OPERATOR_BACKED_SERVICE_CATALOG_TYPE_ID } from '@console/dev-console/src/const';
@@ -20,8 +19,10 @@ import {
 } from '@console/internal/module/k8s';
 import { fromRequirements } from '@console/internal/module/k8s/selector';
 import { isCatalogTypeEnabled, useIsDeveloperCatalogEnabled } from '@console/shared';
+import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { ConsoleEmptyState } from '@console/shared/src/components/empty-state';
 import { ErrorBoundaryFallbackPage, withFallback } from '@console/shared/src/components/error';
+import PageBody from '@console/shared/src/components/layout/PageBody';
 import { iconFor } from '..';
 import {
   CloudCredentialModel,
@@ -255,10 +256,8 @@ export const OperatorHubPage = withFallback((props) => {
   );
   return (
     <>
-      <Helmet>
-        <title>OperatorHub</title>
-      </Helmet>
-      <div className="co-m-page__body">
+      <DocumentTitle>OperatorHub</DocumentTitle>
+      <PageBody>
         <div className="co-catalog">
           <PageHeading title="OperatorHub" />
           <p className="co-catalog-page__description">
@@ -342,7 +341,7 @@ export const OperatorHubPage = withFallback((props) => {
             </Firehose>
           </div>
         </div>
-      </div>
+      </PageBody>
     </>
   );
 }, ErrorBoundaryFallbackPage);

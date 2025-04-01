@@ -2,13 +2,11 @@
 import * as _ from 'lodash-es';
 import * as React from 'react';
 import { render } from 'react-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { linkify } from 'react-linkify';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import { Router } from 'react-router-dom';
 import { useParams, useLocation, CompatRouter, Routes, Route } from 'react-router-dom-v5-compat';
-// AbortController is not supported in some older browser versions
-import 'abort-controller/polyfill';
 import store, { applyReduxExtensions } from '../redux';
 import { useTranslation } from 'react-i18next';
 import { coFetchJSON, appInternalFetch } from '../co-fetch';
@@ -58,7 +56,7 @@ import { useFlag } from '@console/shared/src/hooks/flag';
 import Lightspeed from '@console/app/src/components/lightspeed/Lightspeed';
 import { ThemeProvider } from './ThemeProvider';
 import { init as initI18n } from '../i18n';
-import { Page, SkipToContent, AlertVariant } from '@patternfly/react-core'; // PF4 Imports
+import { AlertVariant, Flex, Page, SkipToContent } from '@patternfly/react-core';
 import { AuthenticationErrorPage } from './error';
 import '../vendor.scss';
 import '../style.scss';
@@ -67,8 +65,6 @@ import '@patternfly/quickstarts/dist/quickstarts.min.css';
 const PF_BREAKPOINT_MD = 768;
 const PF_BREAKPOINT_XL = 1200;
 const NOTIFICATION_DRAWER_BREAKPOINT = 1800;
-// Edge lacks URLSearchParams
-import 'url-search-params-polyfill';
 import { withoutSensitiveInformations, getTelemetryTitle } from './utils/telemetry';
 import { graphQLReady } from '../graphql/client';
 import { AdmissionWebhookWarningNotifications } from '@console/app/src/components/admission-webhook-warnings/AdmissionWebhookWarningNotifications';
@@ -217,11 +213,15 @@ const App = (props) => {
   );
 
   const content = (
-    <>
+    <HelmetProvider>
       <Helmet titleTemplate={`%s · ${productName}`} defaultTitle={productName} />
       <ConsoleNotifier location="BannerTop" />
       <QuickStartDrawer>
-        <div id="app-content" className="co-m-app__content">
+        <Flex
+          id="app-content"
+          direction={{ default: 'column' }}
+          style={{ flex: '1 0 auto', height: '100%' }}
+        >
           <Page
             isContentFilled
             id="content"
@@ -253,6 +253,7 @@ const App = (props) => {
               />
             }
             isNotificationDrawerExpanded={isNotificationDrawerExpanded}
+            style={{ flex: '1', height: '0' }}
           >
             <AppContents />
           </Page>
@@ -261,12 +262,12 @@ const App = (props) => {
           )}
           <CloudShell />
           <GuidedTour />
-        </div>
+        </Flex>
         <div id="modal-container" role="dialog" aria-modal="true" aria-label={t('public~Modal')} />
       </QuickStartDrawer>
       <ConsoleNotifier location="BannerBottom" />
       <FeatureFlagExtensionLoader />
-    </>
+    </HelmetProvider>
   );
 
   return (
