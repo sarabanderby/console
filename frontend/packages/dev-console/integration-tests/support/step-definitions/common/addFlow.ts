@@ -22,8 +22,10 @@ import {
   createGitWorkloadIfNotExistsOnTopologyPage,
   verifyAndInstallGitopsPrimerOperator,
 } from '../../pages';
+import { checkDeveloperPerspective } from '../../pages/functions/checkDeveloperPerspective';
 
 Given('user is at Add page', () => {
+  checkDeveloperPerspective();
   navigateTo(devNavigationMenu.Add);
 });
 
@@ -87,7 +89,7 @@ When('user clicks Create button on Add page', () => {
 
 Then('user will be redirected to Add page', () => {
   // detailsPage.titleShouldContain(pageTitle.Add);
-  cy.get('.ocs-page-layout__title').should('contain.text', pageTitle.Add);
+  cy.get('[data-test="page-heading"] h1').should('contain.text', pageTitle.Add);
 });
 
 When('user clicks Cancel button on Add page', () => {

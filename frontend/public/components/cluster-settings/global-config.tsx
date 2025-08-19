@@ -2,7 +2,14 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom-v5-compat';
-import { AlertVariant } from '@patternfly/react-core';
+import {
+  AlertVariant,
+  Content,
+  ContentVariants,
+  Toolbar,
+  ToolbarContent,
+} from '@patternfly/react-core';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useTranslation } from 'react-i18next';
 import { useResolvedExtensions } from '@console/dynamic-plugin-sdk/src/api/useResolvedExtensions';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
@@ -14,7 +21,6 @@ import {
   getResourceDescription,
   modelFor,
   referenceForGroupVersionKind,
-  K8sModel,
 } from '../../module/k8s';
 import { EmptyBox, ExpandableAlert, Kebab, LoadingBox, resourcePathFromModel } from '../utils';
 import { TextFilter } from '../factory';
@@ -43,55 +49,66 @@ export const breadcrumbsForGlobalConfig = (detailsPageKind: string, detailsPageP
 
 const ItemRow = ({ item, showAPIGroup }) => {
   return (
-    <div className="row co-resource-list__item" data-test-action={item.label}>
-      <div className="col-xs-10 col-sm-4">
+    <Tr data-test-action={item.label}>
+      <Td width={30}>
         <Link to={item.path} data-test-id={item.label}>
           {item.label}
         </Link>
-        {showAPIGroup && <div className="text-muted small">{item.apiGroup}</div>}
-      </div>
-      <div className="hidden-xs col-sm-7">
+        {showAPIGroup && (
+          <div className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">{item.apiGroup}</div>
+        )}
+      </Td>
+      <Td visibility={['hidden', 'visibleOnSm']}>
         <div className="co-line-clamp">{item.description || '-'}</div>
-      </div>
-      <div className="dropdown-kebab-pf">
+      </Td>
+      <Td>
         <Kebab options={item.menuItems} />
-      </div>
-    </div>
+      </Td>
+    </Tr>
   );
 };
 
-export const GlobalConfigPage: React.FC = () => {
-  const { t } = useTranslation();
-  const canClusterUpgrade = useCanClusterUpgrade();
-  const [globalConfigs] = useResolvedExtensions<ClusterGlobalConfig>(isClusterGlobalConfig);
-  const [configResources, clusterOperatorConfigResources] = useSelector<
+const useConfigResources = () => {
+  const { clusterOperatorConfigResources, configResources } = useSelector<
     RootState,
-    [K8sModel[], K8sModel[]]
-  >(({ k8s }) => [
-    k8s
-      .getIn(['RESOURCES', 'configResources'])
-      ?.filter((r) => canClusterUpgrade || filterNonUpgradableResources(r)) ?? [],
-    k8s.getIn(['RESOURCES', 'clusterOperatorConfigResources']) ?? [],
-  ]);
+    { clusterOperatorConfigResources: K8sKind[]; configResources: K8sKind[] }
+  >(({ k8s }) => ({
+    clusterOperatorConfigResources:
+      k8s.getIn(['RESOURCES', 'clusterOperatorConfigResources']) ?? [],
+    configResources: k8s.getIn(['RESOURCES', 'configResources']) ?? [],
+  }));
 
+  const canClusterUpgrade = useCanClusterUpgrade();
+  const adjustedConfigResources = canClusterUpgrade
+    ? configResources
+    : configResources.filter(filterNonUpgradableResources);
+
+  return [adjustedConfigResources, clusterOperatorConfigResources];
+};
+
+export const GlobalConfigPage: React.FCC = () => {
+  const { t } = useTranslation();
+  const [globalConfigs] = useResolvedExtensions<ClusterGlobalConfig>(isClusterGlobalConfig);
+  const [configResources, clusterOperatorConfigResources] = useConfigResources();
   const [errors, setErrors] = React.useState([]);
   const [items, setItems] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [textFilter, setTextFilter] = React.useState('');
 
+  const oauthMenuItems = _.map(IDP_TYPES, (label: string, id: string) => ({
+    label: t('public~{{label}}', { label }),
+    href: `/settings/idp/${id}`,
+  }));
+  const editYAMLMenuItem = (name: string, resourceLink: string) => ({
+    label: t('public~Edit {{name}} resource', { name }),
+    href: `${resourceLink}/yaml`,
+  });
+  const viewAPIExplorerMenuItem = (name: string, apiExplorerLink: string) => ({
+    label: t('public~Explore {{name}} API', { name }),
+    href: apiExplorerLink,
+  });
+
   React.useEffect(() => {
-    const oauthMenuItems = _.map(IDP_TYPES, (label: string, id: string) => ({
-      label: t('public~{{label}}', { label }),
-      href: `/settings/idp/${id}`,
-    }));
-    const editYAMLMenuItem = (name: string, resourceLink: string) => ({
-      label: t('public~Edit {{name}} resource', { name }),
-      href: `${resourceLink}/yaml`,
-    });
-    const viewAPIExplorerMenuItem = (name: string, apiExplorerLink: string) => ({
-      label: t('public~Explore {{name}} API', { name }),
-      href: apiExplorerLink,
-    });
     let isSubscribed = true;
     Promise.all(
       [...configResources, ...clusterOperatorConfigResources].map((model: K8sKind) => {
@@ -145,15 +162,15 @@ export const GlobalConfigPage: React.FC = () => {
             apiGroup: 'monitoring.coreos.com',
             id: 'alertmanager',
             description: 'Configure grouping and routing of alerts',
-            path: '/monitoring/alertmanagerconfig',
+            path: '/settings/cluster/alertmanagerconfig',
             menuItems: [
               {
                 label: t('public~Create Receiver'),
-                href: '/monitoring/alertmanagerconfig/receivers/~new',
+                href: '/settings/cluster/alertmanagerconfig/receivers/~new',
               },
               {
                 label: t('public~Edit configuration YAML'),
-                href: `/monitoring/alertmanageryaml`,
+                href: `/settings/cluster/alertmanageryaml`,
               },
             ],
           },
@@ -168,14 +185,12 @@ export const GlobalConfigPage: React.FC = () => {
       isSubscribed = false;
     };
   }, [clusterOperatorConfigResources, configResources, globalConfigs, t]);
-
   const visibleItems = items.filter(({ label, description = '' }) => {
     return (
       fuzzyCaseInsensitive(textFilter, label) ||
       description.toLowerCase().indexOf(textFilter.toLowerCase()) !== -1
     );
   });
-
   const groupedItems = _.groupBy(visibleItems, _.property('label'));
   const showAPIGroup = (item) => groupedItems?.[item]?.length > 1;
 
@@ -183,16 +198,18 @@ export const GlobalConfigPage: React.FC = () => {
     <PaneBody>
       {!loading && (
         <>
-          <p className="co-help-text co-cluster-paragraph">
+          <Content component={ContentVariants.p} className="pf-v6-u-mb-xl">
             {t('public~Edit the following resources to manage the configuration of your cluster.')}
-          </p>
-          <div className="co-m-pane__filter-row">
-            <TextFilter
-              value={textFilter}
-              label={t('public~by name or description')}
-              onChange={(_event, val) => setTextFilter(val)}
-            />
-          </div>
+          </Content>
+          <Toolbar>
+            <ToolbarContent>
+              <TextFilter
+                value={textFilter}
+                label={t('public~by name or description')}
+                onChange={(_event, val) => setTextFilter(val)}
+              />
+            </ToolbarContent>
+          </Toolbar>
         </>
       )}
       {!_.isEmpty(errors) && (
@@ -208,17 +225,19 @@ export const GlobalConfigPage: React.FC = () => {
         (_.isEmpty(visibleItems) ? (
           <EmptyBox label={t('public~Configuration resources')} />
         ) : (
-          <div className="co-m-table-grid co-m-table-grid--bordered">
-            <div className="row co-m-table-grid__head">
-              <div className="col-xs-10 col-sm-4">{t('public~Configuration resource')}</div>
-              <div className="hidden-xs col-sm-7">{t('public~Description')}</div>
-            </div>
-            <div className="co-m-table-grid__body">
+          <Table gridBreakPoint="">
+            <Thead>
+              <Tr>
+                <Th width={30}>{t('public~Configuration resource')}</Th>
+                <Th visibility={['hidden', 'visibleOnSm']}>{t('public~Description')}</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
               {_.map(visibleItems, (item) => (
                 <ItemRow item={item} key={item.id} showAPIGroup={showAPIGroup(item.label)} />
               ))}
-            </div>
-          </div>
+            </Tbody>
+          </Table>
         ))}
     </PaneBody>
   );

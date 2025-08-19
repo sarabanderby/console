@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { DescriptionList, Grid, GridItem } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 import { DetailsPage, DetailsPageProps } from '@console/internal/components/factory';
 import {
@@ -27,16 +28,16 @@ const OperatorHubDetails: React.FC<OperatorHubDetailsProps> = ({ obj: operatorHu
   return (
     <PaneBody>
       <SectionHeading text={t('olm~OperatorHub details')} />
-      <div className="row">
-        <div className="col-sm-6 col-xs-12">
+      <Grid hasGutter>
+        <GridItem sm={6}>
           <ResourceSummary
             resource={operatorHub}
             podSelector="spec.podSelector"
             showNodeSelector={false}
           />
-        </div>
-        <div className="col-sm-6 col-xs-12">
-          <div className="co-m-pane__details">
+        </GridItem>
+        <GridItem sm={6}>
+          <DescriptionList>
             <DetailsItem
               label={t('olm~Default sources')}
               obj={operatorHub}
@@ -50,7 +51,7 @@ const OperatorHubDetails: React.FC<OperatorHubDetailsProps> = ({ obj: operatorHu
                 .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
                 .map((source, idx) => {
                   return (
-                    <dl key={source.name}>
+                    <DescriptionList key={source.name}>
                       <DetailsItem
                         label={source.name}
                         obj={operatorHub}
@@ -60,13 +61,13 @@ const OperatorHubDetails: React.FC<OperatorHubDetailsProps> = ({ obj: operatorHu
                           {source.disabled ? t('public~Disabled') : t('public~Enabled')}
                         </p>
                       </DetailsItem>
-                    </dl>
+                    </DescriptionList>
                   );
                 })}
             </DetailsItem>
-          </div>
-        </div>
-      </div>
+          </DescriptionList>
+        </GridItem>
+      </Grid>
     </PaneBody>
   );
 };

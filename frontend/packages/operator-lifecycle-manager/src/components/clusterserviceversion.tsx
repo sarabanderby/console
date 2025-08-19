@@ -7,11 +7,17 @@ import {
   CardFooter,
   Popover,
   CardTitle,
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
+  Grid,
+  GridItem,
 } from '@patternfly/react-core';
 import { AddCircleOIcon } from '@patternfly/react-icons/dist/esm/icons/add-circle-o-icon';
 import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
+import { css } from '@patternfly/react-styles';
 import { sortable, wrappable } from '@patternfly/react-table';
-import * as classNames from 'classnames';
 import * as _ from 'lodash';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useLocation, Link } from 'react-router-dom-v5-compat';
@@ -37,7 +43,6 @@ import {
   AsyncComponent,
   DOC_URL_OPERATORFRAMEWORK_SDK,
   documentationURLs,
-  ExternalLink,
   FirehoseResult,
   getDocumentationURL,
   isManaged,
@@ -56,7 +61,6 @@ import {
   ScrollToTopOnMount,
   SectionHeading,
   StatusBox,
-  Timestamp,
 } from '@console/internal/components/utils';
 import { getBreadcrumbPath } from '@console/internal/components/utils/breadcrumbs';
 import { useK8sWatchResource } from '@console/internal/components/utils/k8s-watch-hook';
@@ -71,9 +75,12 @@ import {
   K8sResourceKind,
 } from '@console/internal/module/k8s';
 import { ALL_NAMESPACES_KEY, Status, getNamespace } from '@console/shared';
+import { Timestamp } from '@console/shared/src/components/datetime/Timestamp';
+import { DescriptionListTermHelp } from '@console/shared/src/components/description-list/DescriptionListTermHelp';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
 import { withFallback } from '@console/shared/src/components/error';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
+import { ExternalLink } from '@console/shared/src/components/links/ExternalLink';
 import { consolePluginModal } from '@console/shared/src/components/modals';
 import { RedExclamationCircleIcon } from '@console/shared/src/components/status/icons';
 import { CONSOLE_OPERATOR_CONFIG_NAME } from '@console/shared/src/constants';
@@ -103,7 +110,11 @@ import { isCatalogSourceTrusted, upgradeRequiresApproval } from '../utils';
 import { isCopiedCSV, isStandaloneCSV } from '../utils/clusterserviceversions';
 import { useClusterServiceVersion } from '../utils/useClusterServiceVersion';
 import { useClusterServiceVersionPath } from '../utils/useClusterServiceVersionPath';
-import { ClusterServiceVersionLogo } from './cluster-service-version-logo';
+import {
+  ClusterServiceVersionHeaderIcon,
+  ClusterServiceVersionHeaderTitle,
+  ClusterServiceVersionLogo,
+} from './cluster-service-version-logo';
 import {
   DeprecatedOperatorWarningBadge,
   DeprecatedOperatorWarningAlert,
@@ -112,7 +123,12 @@ import {
 import { createUninstallOperatorModal } from './modals/uninstall-operator-modal';
 import { ProvidedAPIsPage, ProvidedAPIPage, ProvidedAPIPageProps } from './operand';
 import { operatorGroupFor, operatorNamespaceFor, targetNamespacesFor } from './operator-group';
-import { getClusterServiceVersionPlugins } from './operator-hub/operator-hub-utils';
+import { OLMAnnotation } from './operator-hub';
+import {
+  getClusterServiceVersionPlugins,
+  getInitializationLink,
+  getInitializationResource,
+} from './operator-hub/operator-hub-utils';
 import { CreateInitializationResourceButton } from './operator-install-page';
 import {
   SourceMissingStatus,
@@ -132,10 +148,10 @@ const isPackageServer = (obj) =>
 
 const nameColumnClass = '';
 const namespaceColumnClass = '';
-const managedNamespacesColumnClass = classNames('pf-m-hidden', 'pf-m-visible-on-sm');
-const statusColumnClass = classNames('pf-m-hidden', 'pf-m-visible-on-lg');
-const lastUpdatedColumnClass = classNames('pf-m-hidden', 'pf-m-visible-on-2xl');
-const providedAPIsColumnClass = classNames('pf-m-hidden', 'pf-m-visible-on-xl');
+const managedNamespacesColumnClass = css('pf-m-hidden', 'pf-m-visible-on-sm');
+const statusColumnClass = css('pf-m-hidden', 'pf-m-visible-on-lg');
+const lastUpdatedColumnClass = css('pf-m-hidden', 'pf-m-visible-on-2xl');
+const providedAPIsColumnClass = css('pf-m-hidden', 'pf-m-visible-on-xl');
 
 const editSubscription = (sub: SubscriptionKind): KebabOption =>
   !_.isNil(sub)
@@ -198,7 +214,7 @@ const SubscriptionStatus: React.FC<{ muted?: boolean; subscription: Subscription
 
   const subscriptionStatus = getSubscriptionStatus(subscription);
   return (
-    <span className={muted ? 'text-muted' : 'co-icon-and-text'}>
+    <span className={muted ? 'pf-v6-u-text-color-subtle' : 'co-icon-and-text'}>
       {muted ? (
         subscriptionStatus.title
       ) : (
@@ -241,7 +257,7 @@ const ManagedNamespaces: React.FC<ManagedNamespacesProps> = ({ obj }) => {
           title={obj.metadata.namespace}
           name={obj.metadata.namespace}
         />
-        <span className="text-muted">{obj.status.message}</span>
+        <span className="pf-v6-u-text-color-subtle">{obj.status.message}</span>
       </>
     );
   }
@@ -290,35 +306,42 @@ const ConsolePlugins: React.FC<ConsolePluginsProps> = ({ csvPlugins, trusted }) 
   return (
     <>
       {consoleOperatorConfig && canPatchConsoleOperatorConfig && (
-        <dl className="co-clusterserviceversion-details__field">
-          <dt>{t('olm~Console plugin', { count: csvPluginsCount })}</dt>
-          {csvPlugins.map((pluginName) => (
-            <dd key={pluginName} className="co-clusterserviceversion-details__field-description">
-              <strong className="text-muted">{pluginName}: </strong>
-              <Button
-                data-test="edit-console-plugin"
-                type="button"
-                isInline
-                onClick={() =>
-                  consolePluginModal({
-                    consoleOperatorConfig,
-                    pluginName,
-                    trusted,
-                  })
-                }
-                variant="link"
-                icon={<PencilAltIcon />}
-                iconPosition="end"
+        <DescriptionList className="co-clusterserviceversion-details__field">
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              {t('olm~Console plugin', { count: csvPluginsCount })}
+            </DescriptionListTerm>
+            {csvPlugins.map((pluginName) => (
+              <DescriptionListDescription
+                key={pluginName}
+                className="co-clusterserviceversion-details__field-description"
               >
-                <>
-                  {isPluginEnabled(consoleOperatorConfig, pluginName)
-                    ? t('olm~Enabled')
-                    : t('olm~Disabled')}
-                </>
-              </Button>
-            </dd>
-          ))}
-        </dl>
+                <strong className="pf-v6-u-text-color-subtle">{pluginName}: </strong>
+                <Button
+                  data-test="edit-console-plugin"
+                  type="button"
+                  isInline
+                  onClick={() =>
+                    consolePluginModal({
+                      consoleOperatorConfig,
+                      pluginName,
+                      trusted,
+                    })
+                  }
+                  variant="link"
+                  icon={<PencilAltIcon />}
+                  iconPosition="end"
+                >
+                  <>
+                    {isPluginEnabled(consoleOperatorConfig, pluginName)
+                      ? t('olm~Enabled')
+                      : t('olm~Disabled')}
+                  </>
+                </Button>
+              </DescriptionListDescription>
+            ))}
+          </DescriptionListGroup>
+        </DescriptionList>
       )}
     </>
   );
@@ -338,14 +361,11 @@ const ConsolePluginStatus: React.FC<ConsolePluginStatusProps> = ({ csv, csvPlugi
     verb: 'patch',
     name: CONSOLE_OPERATOR_CONFIG_NAME,
   });
-  const aPluginIsDisabled =
-    !consoleOperatorConfig?.spec?.plugins?.length ||
-    csvPlugins.some((plugin) => !isPluginEnabled(consoleOperatorConfig, plugin));
 
   return (
     consoleOperatorConfig &&
     canPatchConsoleOperatorConfig &&
-    aPluginIsDisabled && (
+    csvPlugins.length > 0 && (
       <Popover
         headerContent={<div>{t('olm~Console plugin available')}</div>}
         bodyContent={
@@ -360,6 +380,7 @@ const ConsolePluginStatus: React.FC<ConsolePluginStatusProps> = ({ csv, csvPlugi
             </Link>
           </div>
         }
+        appendTo="inline"
       >
         <Button variant="link" isInline>
           {t('olm~Plugin available')}
@@ -505,7 +526,7 @@ export const SubscriptionTableRow: React.FC<SubscriptionTableRowProps> = ({
 
       {/* Managed Namespaces */}
       <TableData className={managedNamespacesColumnClass}>
-        <span className="text-muted">{t('olm~None')}</span>
+        <span className="pf-v6-u-text-color-subtle">{t('olm~None')}</span>
       </TableData>
 
       {/* Status */}
@@ -520,7 +541,7 @@ export const SubscriptionTableRow: React.FC<SubscriptionTableRowProps> = ({
 
       {/* Provided APIs */}
       <TableData className={providedAPIsColumnClass}>
-        <span className="text-muted">{t('olm~None')}</span>
+        <span className="pf-v6-u-text-color-subtle">{t('olm~None')}</span>
       </TableData>
 
       {/* Kebab */}
@@ -575,6 +596,21 @@ const CSVListNoDataEmptyMsg = () => {
     { project },
   );
   const noOperatorsInAllNamespacesMessage = t('olm~No Operators are available.');
+
+  const [canListPackageManifests] = useAccessReview({
+    group: PackageManifestModel.apiGroup,
+    resource: PackageManifestModel.plural,
+    verb: 'list',
+  });
+
+  const [canListOperatorGroups] = useAccessReview({
+    group: OperatorGroupModel.apiGroup,
+    resource: OperatorGroupModel.plural,
+    verb: 'list',
+  });
+
+  const hasOperatorHubAccess = canListPackageManifests && canListOperatorGroups;
+
   const detail = (
     <>
       <div>
@@ -582,11 +618,13 @@ const CSVListNoDataEmptyMsg = () => {
           ? noOperatorsInAllNamespacesMessage
           : noOperatorsInSingleNamespaceMessage}
       </div>
-      <div>
-        <Trans ns="olm">
-          Discover and install Operators from the <a href="/operatorhub">OperatorHub</a>.
-        </Trans>
-      </div>
+      {hasOperatorHubAccess && (
+        <div>
+          <Trans ns="olm">
+            Discover and install Operators from the <Link to="/operatorhub">OperatorHub</Link>.
+          </Trans>
+        </div>
+      )}
     </>
   );
   return <ConsoleEmptyState title={t('olm~No Operators found')}>{detail}</ConsoleEmptyState>;
@@ -803,6 +841,15 @@ export const ClusterServiceVersionsPage: React.FC<ClusterServiceVersionsPageProp
                   kind: referenceForModel(ClusterServiceVersionModel),
                   namespace: GLOBAL_COPIED_CSV_NAMESPACE,
                   prop: 'globalClusterServiceVersions',
+                  selector: {
+                    matchExpressions: [
+                      {
+                        key: 'olm.copiedFrom',
+                        operator: 'NotEquals',
+                        values: [props.namespace],
+                      },
+                    ],
+                  },
                 },
               ]
             : []),
@@ -906,7 +953,7 @@ export const CRDCardRow = ({ csv, providedAPIs }: CRDCardRowProps) => {
           <CRDCard key={referenceForProvidedAPI(crd)} crd={crd} csv={csv} />
         ))
       ) : (
-        <span className="text-muted">
+        <span className="pf-v6-u-text-color-subtle">
           {t('olm~No Kubernetes APIs are being provided by this Operator.')}
         </span>
       )}
@@ -965,26 +1012,22 @@ export const ClusterServiceVersionDetails: React.FC<ClusterServiceVersionDetails
   props,
 ) => {
   const { t } = useTranslation();
-  const { spec, metadata, status } = props.obj;
+  const { spec, metadata, status } = props.obj ?? {};
   const { subscription } = props.customData;
   const providedAPIs = providedAPIsForCSV(props.obj);
-  // TODO (jon) remove annotation destructuring and use helper functions
-  const {
-    'marketplace.openshift.io/support-workflow': marketplaceSupportWorkflow,
-    'operatorframework.io/initialization-resource': initializationResourceJSON,
-  } = metadata.annotations || {};
-
-  const initializationResource = React.useMemo(() => {
-    if (initializationResourceJSON) {
-      try {
-        return JSON.parse(initializationResourceJSON);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error while parseing CSV initialization resource JSON', error.message);
-      }
-    }
-    return null;
-  }, [initializationResourceJSON]);
+  const marketplaceSupportWorkflow = metadata?.annotations?.[OLMAnnotation.SupportWorkflow] || '';
+  const initializationLink = getInitializationLink(metadata?.annotations);
+  const initializationResource = React.useMemo(
+    () =>
+      !initializationLink &&
+      getInitializationResource(metadata?.annotations, {
+        onError: (error) => {
+          // eslint-disable-next-line no-console
+          console.error('Error while parsing CSV initialization resource JSON,', error.message);
+        },
+      }),
+    [metadata?.annotations, initializationLink],
+  );
 
   const supportWorkflowUrl = React.useMemo(() => {
     if (marketplaceSupportWorkflow) {
@@ -1011,8 +1054,8 @@ export const ClusterServiceVersionDetails: React.FC<ClusterServiceVersionDetails
       <ScrollToTopOnMount />
 
       <PaneBody>
-        <div className="row">
-          <div className="col-sm-9">
+        <Grid hasGutter>
+          <GridItem sm={9}>
             {status && status.phase === ClusterServiceVersionPhase.CSVPhaseFailed && (
               <Alert
                 isInline
@@ -1058,141 +1101,163 @@ export const ClusterServiceVersionDetails: React.FC<ClusterServiceVersionDetails
             <CRDCardRow csv={props.obj} providedAPIs={providedAPIs} />
             <SectionHeading text={t('olm~Description')} />
             <MarkdownView content={spec.description || t('olm~Not available')} />
-          </div>
-          <div className="col-sm-3">
-            <dl className="co-clusterserviceversion-details__field">
-              <dt>{t('olm~Provider')}</dt>
-              <dd>
-                {spec.provider && spec.provider.name ? spec.provider.name : t('olm~Not available')}
-              </dd>
+          </GridItem>
+          <GridItem sm={3}>
+            <DescriptionList className="co-clusterserviceversion-details__field">
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Provider')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {spec.provider && spec.provider.name
+                    ? spec.provider.name
+                    : t('olm~Not available')}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
               {supportWorkflowUrl && (
-                <>
-                  <dt>{t('olm~Support')}</dt>
-                  <dd>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('olm~Support')}</DescriptionListTerm>
+                  <DescriptionListDescription>
                     <ExternalLink href={supportWorkflowUrl} text={t('olm~Get support')} />
-                  </dd>
-                </>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
               )}
-              <dt>{t('olm~Created at')}</dt>
-              <dd>
-                <Timestamp timestamp={metadata.creationTimestamp} />
-              </dd>
-            </dl>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Created at')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <Timestamp timestamp={metadata.creationTimestamp} />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            </DescriptionList>
             {csvPlugins.length > 0 && subscription && (
               <ConsolePlugins
                 csvPlugins={csvPlugins}
                 trusted={isCatalogSourceTrusted(subscription?.spec?.source)}
               />
             )}
-            <dl className="co-clusterserviceversion-details__field">
-              <dt>{t('olm~Links')}</dt>
-              {spec.links && spec.links.length > 0 ? (
-                spec.links.map((link) => (
-                  <dd key={link.url} style={{ display: 'flex', flexDirection: 'column' }}>
-                    {link.name}{' '}
-                    <ExternalLink
-                      href={link.url}
-                      text={link.url || '-'}
-                      additionalClassName="co-break-all"
-                    />
-                  </dd>
-                ))
-              ) : (
-                <dd>{t('olm~Not available')}</dd>
-              )}
-            </dl>
-            <dl className="co-clusterserviceversion-details__field">
-              <dt>{t('olm~Maintainers')}</dt>
-              {spec.maintainers && spec.maintainers.length > 0 ? (
-                spec.maintainers.map((maintainer) => (
-                  <dd key={maintainer.email} style={{ display: 'flex', flexDirection: 'column' }}>
-                    {maintainer.name}{' '}
-                    <a href={`mailto:${maintainer.email}`} className="co-break-all">
-                      {maintainer.email || '-'}
-                    </a>
-                  </dd>
-                ))
-              ) : (
-                <dd>{t('olm~Not available')}</dd>
-              )}
-            </dl>
-          </div>
-        </div>
+            <DescriptionList className="co-clusterserviceversion-details__field">
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Links')}</DescriptionListTerm>
+                {spec.links && spec.links.length > 0 ? (
+                  spec.links.map((link) => (
+                    <DescriptionListDescription key={link.url}>
+                      <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-column">
+                        {link.name}
+                        <ExternalLink
+                          href={link.url}
+                          text={link.url || '-'}
+                          className="co-break-all"
+                        />
+                      </div>
+                    </DescriptionListDescription>
+                  ))
+                ) : (
+                  <DescriptionListDescription>{t('olm~Not available')}</DescriptionListDescription>
+                )}
+              </DescriptionListGroup>
+            </DescriptionList>
+            <DescriptionList className="co-clusterserviceversion-details__field">
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Maintainers')}</DescriptionListTerm>
+                {spec.maintainers && spec.maintainers.length > 0 ? (
+                  spec.maintainers.map((maintainer) => (
+                    <DescriptionListDescription
+                      key={maintainer.email}
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      {maintainer.name}{' '}
+                      <a href={`mailto:${maintainer.email}`} className="co-break-all">
+                        {maintainer.email || '-'}
+                      </a>
+                    </DescriptionListDescription>
+                  ))
+                ) : (
+                  <DescriptionListDescription>{t('olm~Not available')}</DescriptionListDescription>
+                )}
+              </DescriptionListGroup>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('olm~ClusterServiceVersion details')} />
-        <div className="row">
-          <div className="col-sm-6">
+        <Grid hasGutter>
+          <GridItem sm={6}>
             <ResourceSummary resource={props.obj}>
-              <dt>
-                <Popover
-                  headerContent={<div>{t('olm~Managed Namespaces')}</div>}
-                  bodyContent={
-                    <div>{t('olm~Operands in this Namespace are managed by the Operator.')}</div>
-                  }
-                  maxWidth="30rem"
-                >
-                  <Button
-                    icon={t('olm~Managed Namespaces')}
-                    variant="plain"
-                    className="details-item__popover-button"
-                  />
-                </Popover>
-              </dt>
-              <dd>
-                <ManagedNamespaces obj={props.obj} />
-              </dd>
-            </ResourceSummary>
-          </div>
-          <div className="col-sm-6">
-            <dt>{t('olm~Status')}</dt>
-            <dd>
-              <Status status={status ? status.phase : t('olm~Unknown')} />
-            </dd>
-            <dt>{t('olm~Status reason')}</dt>
-            <dd>{status ? status.message : t('olm~Unknown')}</dd>
-            {!_.isEmpty(spec.install.spec?.deployments) && (
-              <>
-                <dt>{t('olm~Operator Deployments')}</dt>
-                {spec.install.spec.deployments.map(({ name }) => (
-                  <dd key={name}>
-                    <ResourceLink
-                      name={name}
-                      kind="Deployment"
-                      namespace={operatorNamespaceFor(props.obj)}
-                    />
-                  </dd>
-                ))}
-              </>
-            )}
-            {!_.isEmpty(permissions) && (
-              <>
-                <dt>{t('olm~Operator ServiceAccounts')}</dt>
-                {permissions.map(({ serviceAccountName }) => (
-                  <dd key={serviceAccountName} data-service-account-name={serviceAccountName}>
-                    <ResourceLink
-                      name={serviceAccountName}
-                      kind="ServiceAccount"
-                      namespace={operatorNamespaceFor(props.obj)}
-                    />
-                  </dd>
-                ))}
-              </>
-            )}
-            <dt>{t('olm~OperatorGroup')}</dt>
-            <dd>
-              {operatorGroupFor(props.obj) ? (
-                <ResourceLink
-                  name={operatorGroupFor(props.obj)}
-                  namespace={operatorNamespaceFor(props.obj)}
-                  kind={referenceForModel(OperatorGroupModel)}
+              <DescriptionListGroup>
+                <DescriptionListTermHelp
+                  text={t('olm~Managed Namespaces')}
+                  textHelp={t('olm~Operands in this Namespace are managed by the Operator.')}
+                  popoverProps={{
+                    maxWidth: '30rem',
+                  }}
                 />
-              ) : (
-                '-'
+                <DescriptionListDescription>
+                  <ManagedNamespaces obj={props.obj} />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            </ResourceSummary>
+          </GridItem>
+          <GridItem sm={6}>
+            <DescriptionList>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Status')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <Status status={status ? status.phase : t('olm~Unknown')} />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Status reason')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {status ? status.message : t('olm~Unknown')}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              {!_.isEmpty(spec.install.spec?.deployments) && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('olm~Operator Deployments')}</DescriptionListTerm>
+                  {spec.install.spec.deployments.map(({ name }) => (
+                    <DescriptionListDescription key={name}>
+                      <ResourceLink
+                        name={name}
+                        kind="Deployment"
+                        namespace={operatorNamespaceFor(props.obj)}
+                      />
+                    </DescriptionListDescription>
+                  ))}
+                </DescriptionListGroup>
               )}
-            </dd>
-          </div>
-        </div>
+              {!_.isEmpty(permissions) && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('olm~Operator ServiceAccounts')}</DescriptionListTerm>
+                  {permissions.map(({ serviceAccountName }) => (
+                    <DescriptionListDescription
+                      key={serviceAccountName}
+                      data-service-account-name={serviceAccountName}
+                    >
+                      <ResourceLink
+                        name={serviceAccountName}
+                        kind="ServiceAccount"
+                        namespace={operatorNamespaceFor(props.obj)}
+                      />
+                    </DescriptionListDescription>
+                  ))}
+                </DescriptionListGroup>
+              )}
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~OperatorGroup')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {operatorGroupFor(props.obj) ? (
+                    <ResourceLink
+                      name={operatorGroupFor(props.obj)}
+                      namespace={operatorNamespaceFor(props.obj)}
+                      kind={referenceForModel(OperatorGroupModel)}
+                    />
+                  ) : (
+                    '-'
+                  )}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('olm~Conditions')} />
@@ -1331,10 +1396,10 @@ export const ClusterServiceVersionDetailsPage: React.FC = (props) => {
           ...(canListClusterScopeInstallPlans ? {} : { namespace }),
         },
       ]}
-      icon={({ obj }) => (
-        <ClusterServiceVersionLogo
+      icon={<ClusterServiceVersionHeaderIcon icon={csv?.spec?.icon?.[0]} />}
+      OverrideTitle={({ obj }) => (
+        <ClusterServiceVersionHeaderTitle
           displayName={obj?.spec?.displayName}
-          icon={obj?.spec?.icon?.[0]}
           provider={obj?.spec?.provider}
           version={obj?.spec?.version}
           deprecation={deprecatedPackage.deprecation}

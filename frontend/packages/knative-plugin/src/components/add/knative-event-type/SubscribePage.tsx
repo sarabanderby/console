@@ -4,9 +4,9 @@ import { useLocation, useParams } from 'react-router-dom-v5-compat';
 import NamespacedPage, {
   NamespacedPageVariants,
 } from '@console/dev-console/src/components/NamespacedPage';
-import { PageHeading } from '@console/internal/components/utils';
 import { K8sResourceKind } from '@console/internal/module/k8s';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import {
   SUBSCRIBE_PROVIDER_API_VERSION_PARAM,
   SUBSCRIBE_PROVIDER_KIND_PARAM,
@@ -35,10 +35,15 @@ const SubscribePage: React.FC = () => {
   return (
     <NamespacedPage disabled variant={NamespacedPageVariants.light}>
       <DocumentTitle>{t('knative-plugin~Subscribe')}</DocumentTitle>
-      <PageHeading title={t('knative-plugin~Subscribe')}>
-        {t('knative-plugin~Subscribe to')} {subscribeApiVersion} {subscribeKind} {namespace}/
-        {subscribeName}
-      </PageHeading>
+      <PageHeading
+        title={t('knative-plugin~Subscribe')}
+        helpText={
+          <>
+            {t('knative-plugin~Subscribe to')} {subscribeApiVersion} {subscribeKind} {namespace}/
+            {subscribeName}
+          </>
+        }
+      />
       <Subscribe source={source} />
     </NamespacedPage>
   );

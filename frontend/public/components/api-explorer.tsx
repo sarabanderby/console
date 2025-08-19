@@ -8,7 +8,6 @@ import { DocumentTitle } from '@console/shared/src/components/document-title/Doc
 import { Map as ImmutableMap } from 'immutable';
 import * as fuzzy from 'fuzzysearch';
 import {
-  Tooltip,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -16,6 +15,10 @@ import {
   Switch,
   FlexItem,
   Flex,
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
 } from '@patternfly/react-core';
 import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import { sortable } from '@patternfly/react-table';
@@ -25,7 +28,8 @@ import i18next from 'i18next';
 import { ALL_NAMESPACES_KEY, FLAGS, APIError, getTitleForNodeKind } from '@console/shared';
 import { useExactSearch } from '@console/app/src/components/user-preferences/search/useExactSearch';
 import { PageTitleContext } from '@console/shared/src/components/pagetitle/PageTitleContext';
-import { Page, PageHeading, useAccessReview } from '@console/internal/components/utils';
+import { Page, useAccessReview } from '@console/internal/components/utils';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
 
 import { LocalResourceAccessReviewsModel, ResourceAccessReviewsModel } from '../models';
@@ -48,9 +52,9 @@ import { Table, TextFilter } from './factory';
 import { exactMatch, fuzzyCaseInsensitive } from './factory/table-filters';
 import { getResourceListPages } from './resource-pages';
 import { ExploreType } from './sidebars/explore-type-sidebar';
+import { ConsoleSelect } from '@console/internal/components/utils/console-select';
 import {
   AsyncComponent,
-  Dropdown,
   EmptyBox,
   HorizontalNav,
   LinkifyExternal,
@@ -67,6 +71,8 @@ import {
   isResourceListPage as isDynamicResourceListPage,
 } from '@console/dynamic-plugin-sdk';
 import { getK8sModel } from '@console/dynamic-plugin-sdk/src/utils/k8s/hooks/useK8sModel';
+import { ErrorPage404 } from './error';
+import { DescriptionListTermHelp } from '@console/shared/src/components/description-list/DescriptionListTermHelp';
 
 const mapStateToProps = (state: RootState): APIResourceLinkStateProps => {
   return {
@@ -95,7 +101,7 @@ const APIResourceLink_: React.FC<APIResourceLinkStateProps & APIResourceLinkOwnP
   const to = getAPIResourceLink(activeNamespace, model);
   return (
     <span className="co-resource-item">
-      <span className="co-resource-icon--fixed-width hidden-xs">
+      <span className="co-resource-icon--fixed-width pf-v6-u-display-none pf-v6-u-display-flex-on-sm">
         <ResourceIcon kind={referenceForModel(model)} />
       </span>
       <Link to={to} className="co-resource-item__resource-name">
@@ -124,7 +130,7 @@ const Group: React.FC<{ value: string }> = ({ value }) => {
   ) : (
     <span className="co-break-word">
       {first}
-      <span className="text-muted">.{rest.join('.')}</span>
+      <span className="pf-v6-u-text-color-subtle">.{rest.join('.')}</span>
     </span>
   );
 };
@@ -321,34 +327,37 @@ const APIResourcesList = compose(
         <ToolbarContent>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="md">
             <ToolbarItem>
-              <Dropdown
+              <ConsoleSelect
                 autocompleteFilter={autocompleteGroups}
                 items={groupOptions}
                 onChange={onGroupSelected}
                 selectedKey={groupFilter}
                 spacerBefore={groupSpacer}
                 title={groupOptions[groupFilter]}
-                dropDownClassName="dropdown--full-width"
+                alwaysShowTitle
+                isFullWidth
               />
             </ToolbarItem>
             <ToolbarItem>
-              <Dropdown
+              <ConsoleSelect
                 items={versionOptions}
                 onChange={onVersionSelected}
                 selectedKey={versionFilter}
                 spacerBefore={versionSpacer}
                 title={versionOptions[versionFilter]}
-                dropDownClassName="dropdown--full-width"
+                alwaysShowTitle
+                isFullWidth
               />
             </ToolbarItem>
             <ToolbarItem>
-              <Dropdown
+              <ConsoleSelect
                 items={scopeOptions}
                 onChange={onScopeSelected}
                 selectedKey={scopeFilter}
                 spacerBefore={scopeSpacer}
                 title={scopeOptions[scopeFilter]}
-                dropDownClassName="dropdown--full-width"
+                alwaysShowTitle
+                isFullWidth
               />
             </ToolbarItem>
           </ToolbarToggleGroup>
@@ -394,38 +403,49 @@ const APIResourceDetails: React.FC<APIResourceTabProps> = ({ customData: { kindO
   const { t } = useTranslation();
   return (
     <PaneBody>
-      <dl className="co-m-pane__details">
-        <dt>{t('public~Kind')}</dt>
-        <dd>{kind}</dd>
-        <dt>{t('public~API group')}</dt>
-        <dd className="co-select-to-copy">{apiGroup || '-'}</dd>
-        <dt>{t('public~API version')}</dt>
-        <dd>{apiVersion}</dd>
-        <dt>{t('public~Namespaced')}</dt>
-        <dd>{namespaced ? t('public~true') : t('public~false')}</dd>
-        <dt>{t('public~Verbs')}</dt>
-        <dd>{verbs.join(', ')}</dd>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('public~Kind')}</DescriptionListTerm>
+          <DescriptionListDescription>{kind}</DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('public~API group')}</DescriptionListTerm>
+          <DescriptionListDescription className="co-select-to-copy">
+            {apiGroup || '-'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('public~API version')}</DescriptionListTerm>
+          <DescriptionListDescription>{apiVersion}</DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('public~Namespaced')}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {namespaced ? t('public~true') : t('public~false')}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t('public~Verbs')}</DescriptionListTerm>
+          <DescriptionListDescription>{verbs.join(', ')}</DescriptionListDescription>
+        </DescriptionListGroup>
         {shortNames && (
-          <>
-            <dt>
-              <Tooltip
-                content={t('public~Short names can be used to match this resource on the CLI.')}
-              >
-                <span>{t('public~Short names')}</span>
-              </Tooltip>
-            </dt>
-            <dd>{shortNames.join(', ')}</dd>
-          </>
+          <DescriptionListGroup>
+            <DescriptionListTermHelp
+              text={t('public~Short names')}
+              textHelp={t('public~Short names can be used to match this resource on the CLI.')}
+            />
+            <DescriptionListDescription>{shortNames.join(', ')}</DescriptionListDescription>
+          </DescriptionListGroup>
         )}
         {description && (
-          <>
-            <dt>{t('public~Description')}</dt>
-            <dd className="co-break-word co-pre-wrap">
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t('public~Description')}</DescriptionListTerm>
+            <DescriptionListDescription className="co-break-word co-pre-wrap">
               <LinkifyExternal>{description}</LinkifyExternal>
-            </dd>
-          </>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
         )}
-      </dl>
+      </DescriptionList>
     </PaneBody>
   );
 };
@@ -467,7 +487,7 @@ const Subject: React.FC<{ value: string }> = ({ value }) => {
   const [first, ...rest] = value.split(':');
   return first === 'system' && !_.isEmpty(rest) ? (
     <>
-      <span className="text-muted">{first}:</span>
+      <span className="pf-v6-u-text-color-subtle">{first}:</span>
       {rest.join(':')}
     </>
   ) : (
@@ -608,24 +628,24 @@ const APIResourceAccessReview: React.FC<APIResourceTabProps> = ({
 
   return (
     <>
-      <div className="co-m-pane__filter-bar">
-        <div className="co-m-pane__filter-bar-group">
-          <Dropdown
-            items={verbOptions}
-            onChange={(v: K8sVerb) => setVerb(v)}
-            selectedKey={verb}
-            titlePrefix={t('public~Verb')}
-          />
-        </div>
-        <div className="co-m-pane__filter-bar-group co-m-pane__filter-bar-group--filter">
-          <TextFilter
-            defaultValue={filter}
-            label={t('public~by subject')}
-            onChange={(_event, val) => setFilter(val)}
-          />
-        </div>
-      </div>
       <PaneBody>
+        <Flex className="pf-v6-u-mb-lg">
+          <FlexItem>
+            <ConsoleSelect
+              items={verbOptions}
+              onChange={(v: K8sVerb) => setVerb(v)}
+              selectedKey={verb}
+              titlePrefix={t('public~Verb')}
+            />
+          </FlexItem>
+          <FlexItem align={{ default: 'alignRight' }}>
+            <TextFilter
+              defaultValue={filter}
+              label={t('public~by subject')}
+              onChange={(_event, val) => setFilter(val)}
+            />
+          </FlexItem>
+        </Flex>
         <RowFilter
           allSelected={allSelected}
           itemCount={itemCount}
@@ -718,13 +738,7 @@ const APIResourcePage_ = (props) => {
   });
 
   if (!kindObj) {
-    return kindsInFlight ? (
-      <LoadingBox />
-    ) : (
-      <PaneBody>
-        <PageHeading title={t('public~404: Not found')} centerText />
-      </PaneBody>
-    );
+    return kindsInFlight ? <LoadingBox /> : <ErrorPage404 />;
   }
 
   const breadcrumbs = [

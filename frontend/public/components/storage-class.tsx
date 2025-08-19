@@ -8,7 +8,7 @@ import {
   LazyActionMenu,
 } from '@console/shared';
 import { useTranslation } from 'react-i18next';
-import * as classNames from 'classnames';
+import { css } from '@patternfly/react-styles';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { DetailsPage, ListPage, Table, TableData, RowFunctionArgs } from './factory';
 import {
@@ -27,10 +27,18 @@ import {
   referenceFor,
   referenceForModel,
 } from '../module/k8s';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 
 export const StorageClassReference: K8sResourceKindReference = 'StorageClass';
 
-const defaultClassAnnotation = 'storageclass.kubernetes.io/is-default-class';
+export const defaultClassAnnotation = 'storageclass.kubernetes.io/is-default-class';
 const betaDefaultStorageClassAnnotation = 'storageclass.beta.kubernetes.io/is-default-class';
 export const isDefaultClass = (storageClass: K8sResourceKind) => {
   const annotations = _.get(storageClass, 'metadata.annotations') || {};
@@ -52,25 +60,29 @@ const StorageClassDetails: React.FC<StorageClassDetailsProps> = ({ obj }) => {
   return (
     <PaneBody>
       <SectionHeading text={t('public~StorageClass details')} />
-      <div className="row">
-        <div className="col-sm-6">
+      <Grid hasGutter>
+        <GridItem sm={6}>
           <ResourceSummary resource={obj}>
             <DetailsItem label={t('public~Provisioner')} obj={obj} path="provisioner" />
           </ResourceSummary>
-        </div>
-        <div className="col-sm-6">
-          <dl className="co-m-pane__details">
+        </GridItem>
+        <GridItem sm={6}>
+          <DescriptionList>
             <DetailsItem label={t('public~Reclaim policy')} obj={obj} path="reclaimPolicy" />
-            <dt>{t('public~Default class')}</dt>
-            <dd>{isDefaultClass(obj) ? t('public~True') : t('public~False')}</dd>
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t('public~Default class')}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {isDefaultClass(obj) ? t('public~True') : t('public~False')}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
             <DetailsItem
               label={t('public~Volume binding mode')}
               obj={obj}
               path="volumeBindingMode"
             />
-          </dl>
-        </div>
-      </div>
+          </DescriptionList>
+        </GridItem>
+      </Grid>
     </PaneBody>
   );
 };
@@ -81,16 +93,16 @@ const StorageClassTableRow: React.FC<RowFunctionArgs<StorageClassResourceKind>> 
   const context = { [resourceKind]: obj };
   return (
     <>
-      <TableData className={classNames(tableColumnClasses[0], 'co-break-word')}>
+      <TableData className={css(tableColumnClasses[0], 'co-break-word')}>
         <ResourceLink kind={StorageClassReference} name={obj.metadata.name}>
           {isDefaultClass(obj) && (
-            <span className="small text-muted co-resource-item__help-text">
+            <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle co-resource-item__help-text">
               &ndash; {t('public~Default')}
             </span>
           )}
         </ResourceLink>
       </TableData>
-      <TableData className={classNames(tableColumnClasses[1], 'co-break-word')}>
+      <TableData className={css(tableColumnClasses[1], 'co-break-word')}>
         {obj.provisioner}
       </TableData>
       <TableData className={tableColumnClasses[2]}>{obj.reclaimPolicy || '-'}</TableData>

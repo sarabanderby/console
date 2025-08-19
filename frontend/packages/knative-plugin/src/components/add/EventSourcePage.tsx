@@ -5,8 +5,9 @@ import NamespacedPage, {
   NamespacedPageVariants,
 } from '@console/dev-console/src/components/NamespacedPage';
 import { QUERY_PROPERTIES } from '@console/dev-console/src/const';
-import { LoadingBox, PageHeading } from '@console/internal/components/utils';
+import { LoadingBox } from '@console/internal/components/utils';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import { useEventSourceStatus } from '../../hooks';
 import { CamelKameletBindingModel } from '../../models';
 import ConnectedEventSource from './EventSource';
@@ -32,11 +33,12 @@ const EventSourcePage: React.FC = () => {
   return (
     <NamespacedPage disabled variant={NamespacedPageVariants.light}>
       <DocumentTitle>{t('knative-plugin~Event Source')}</DocumentTitle>
-      <PageHeading title={t('knative-plugin~Create Event Source')}>
-        {t(
+      <PageHeading
+        title={t('knative-plugin~Create Event Source')}
+        helpText={t(
           'knative-plugin~Create an Event source to register interest in a class of events from a particular system. Configure using YAML and form views.',
         )}
-      </PageHeading>
+      />
 
       {loaded ? (
         <EventSourceAlert

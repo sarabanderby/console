@@ -1,14 +1,11 @@
 import * as React from 'react';
-import { NavExpandable, Button, FlexItem, Flex } from '@patternfly/react-core';
+import { NavExpandable, Button, FlexItem, Flex, Truncate } from '@patternfly/react-core';
 import { StarIcon } from '@patternfly/react-icons';
-import * as classNames from 'classnames';
+import { css } from '@patternfly/react-styles';
 import { useTranslation } from 'react-i18next';
 import { useUserSettingsCompatibility } from '@console/shared';
-import {
-  FAVORITES_CONFIG_MAP_KEY,
-  FAVORITES_LOCAL_STORAGE_KEY,
-  FavoritesType,
-} from './FavoriteButton';
+import { FAVORITES_CONFIG_MAP_KEY, FAVORITES_LOCAL_STORAGE_KEY } from '../../consts';
+import { FavoritesType } from '../../types';
 import { FavoriteNavItem } from './FavoriteNavItem';
 
 import './FavoriteNavItems.scss';
@@ -22,7 +19,7 @@ export const FavoriteNavItems: React.FC = () => {
   const [favorites, setFavorites, loaded] = useUserSettingsCompatibility<FavoritesType>(
     FAVORITES_CONFIG_MAP_KEY,
     FAVORITES_LOCAL_STORAGE_KEY,
-    null,
+    undefined,
     true,
   );
 
@@ -33,7 +30,7 @@ export const FavoriteNavItems: React.FC = () => {
         setActiveGroup('favorites-group');
         setActiveItem(`favorites-item-${currentFavorite.url}`);
       } else {
-        setActiveItem(null);
+        setActiveItem('');
       }
     }
   }, [loaded, favorites, currentUrlPath]);
@@ -61,8 +58,8 @@ export const FavoriteNavItems: React.FC = () => {
         dataAttributes={{
           'data-test': 'favorite-resource-item',
         }}
-        className={classNames('co-favorite-resource')}
-        to={favorite.url}
+        className={css('co-favorite-resource')}
+        to={`${favorite.url}?from=favorites`}
         isActive={activeItem === `favorites-item-${favorite.url}`}
       >
         <Flex
@@ -71,8 +68,10 @@ export const FavoriteNavItems: React.FC = () => {
           flexWrap={{ default: 'nowrap' }}
           style={{ width: '100%' }}
         >
-          <FlexItem className="pf-m-truncate">{favorite.name}</FlexItem>
-          <FlexItem>
+          <FlexItem className="pf-v6-u-m-0">
+            <Truncate content={favorite.name} />
+          </FlexItem>
+          <FlexItem className="pf-v6-u-mr-xs">
             <Button
               variant="plain"
               aria-label={`Unfavorite ${favorite.name}`}
@@ -80,7 +79,6 @@ export const FavoriteNavItems: React.FC = () => {
                 e.preventDefault();
                 handleUnfavorite(favorite.url);
               }}
-              className="co-favorite-delete-button"
               icon={<StarIcon color="gold" />}
               data-test="remove-favorite-button"
             />

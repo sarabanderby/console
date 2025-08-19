@@ -2,10 +2,14 @@ import * as React from 'react';
 import { Flex, FlexItem, SearchInput } from '@patternfly/react-core';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { Dropdown } from '@console/internal/components/utils';
+import { ConsoleSelect } from '@console/internal/components/utils/console-select';
 import { useDebounceCallback } from '@console/shared';
 import { NO_GROUPING } from '../utils/category-utils';
 import { CatalogSortOrder, CatalogStringMap } from '../utils/types';
+import CatalogPageHeader from './CatalogPageHeader';
+import CatalogPageHeading from './CatalogPageHeading';
+import CatalogPageNumItems from './CatalogPageNumItems';
+import CatalogPageToolbar from './CatalogPageToolbar';
 
 type CatalogToolbarProps = {
   title: string;
@@ -51,9 +55,9 @@ const CatalogToolbar = React.forwardRef<HTMLInputElement, CatalogToolbarProps>(
     const debouncedOnSearchKeywordChange = useDebounceCallback(onSearchKeywordChange);
 
     return (
-      <div className="co-catalog-page__header">
-        <div className="co-catalog-page__heading text-capitalize">{title}</div>
-        <div className="co-catalog-page__filter">
+      <CatalogPageHeader>
+        <CatalogPageHeading>{title}</CatalogPageHeading>
+        <CatalogPageToolbar>
           <Flex>
             <FlexItem>
               <SearchInput
@@ -68,31 +72,32 @@ const CatalogToolbar = React.forwardRef<HTMLInputElement, CatalogToolbarProps>(
               />
             </FlexItem>
             <FlexItem>
-              <Dropdown
+              <ConsoleSelect
                 className="co-catalog-page__sort"
                 items={catalogSortItems}
                 title={catalogSortItems[sortOrder]}
+                alwaysShowTitle
                 onChange={onSortOrderChange}
               />
             </FlexItem>
             {showGrouping && (
               <FlexItem>
-                <Dropdown
-                  className="co-catalog-page__btn-group__group-by"
+                <ConsoleSelect
                   menuClassName="dropdown-menu--text-wrap"
                   items={catalogGroupItems}
                   onChange={onGroupingChange}
                   titlePrefix={t('console-shared~Group by')}
                   title={catalogGroupItems[activeGrouping]}
+                  alwaysShowTitle
                 />
               </FlexItem>
             )}
           </Flex>
-          <div className="co-catalog-page__num-items">
+          <CatalogPageNumItems>
             {t('console-shared~{{totalItems}} items', { totalItems })}
-          </div>
-        </div>
-      </div>
+          </CatalogPageNumItems>
+        </CatalogPageToolbar>
+      </CatalogPageHeader>
     );
   },
 );

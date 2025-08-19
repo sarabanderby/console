@@ -29,7 +29,6 @@ import {
   withHandlePromise,
   history,
   RequestSizeInput,
-  Timestamp,
   resourcePathFromModel,
   convertToBaseValue,
   humanizeBinaryBytesWithoutB,
@@ -55,9 +54,9 @@ import {
   Status,
   isCephProvisioner,
   getAnnotations,
-  RedExclamationCircleIcon,
   onlyPvcSCs,
 } from '@console/shared';
+import { Timestamp } from '@console/shared/src/components/datetime/Timestamp';
 import { AccessModeSelector } from '../../access-modes/access-mode';
 
 import './restore-pvc-modal.scss';
@@ -137,7 +136,11 @@ const RestorePVCModal = withHandlePromise<RestorePVCModalProps>(
       );
     };
     return (
-      <form onSubmit={submit} name="form" className="modal-content">
+      <form
+        onSubmit={submit}
+        name="form"
+        className="modal-content pf-v6-c-form pf-v6-c-form--no-gap"
+      >
         <ModalTitle>{t('console-app~Restore as new PVC')}</ModalTitle>
         <ModalBody>
           <p>
@@ -221,7 +224,7 @@ const RestorePVCModal = withHandlePromise<RestorePVCModalProps>(
             {!validSize && (
               <FormHelperText>
                 <HelperText>
-                  <HelperTextItem variant="error" icon={<RedExclamationCircleIcon />}>
+                  <HelperTextItem variant="error">
                     {t(
                       'console-app~Size should be equal or greater than the restore size of snapshot.',
                     )}
@@ -231,7 +234,7 @@ const RestorePVCModal = withHandlePromise<RestorePVCModalProps>(
             )}
           </FormGroup>
           <div className="co-restore-pvc-modal__details-section">
-            <p className="text-muted">
+            <p className="pf-v6-u-text-color-subtle">
               {t('console-app~{{resourceKind}} details', {
                 resourceKind: VolumeSnapshotModel.label,
               })}

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Form, Button } from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import { Form } from '@patternfly/react-core';
 import { FormikProps, FormikValues } from 'formik';
 import * as _ from 'lodash';
 import { useTranslation, Trans } from 'react-i18next';
@@ -10,13 +9,14 @@ import {
   getDocumentationURL,
   history,
   isManaged,
-  PageHeading,
   ResourceLink,
 } from '@console/internal/components/utils';
 import { ContainerModel } from '@console/internal/models';
 import { K8sResourceKind, referenceFor, modelFor } from '@console/internal/module/k8s';
 import { FormFooter } from '@console/shared';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
+import { ExternalLinkButton } from '@console/shared/src/components/links/ExternalLinkButton';
 import { getResourcesType } from '../edit-application/edit-application-utils';
 import { getHealthChecksData } from './create-health-checks-probe-utils';
 import { useViewOnlyAccess, HealthCheckContext } from './health-checks-utils';
@@ -84,22 +84,16 @@ const AddHealthChecks: React.FC<FormikProps<FormikValues> & AddHealthChecksProps
           <>
             {pageTitle}
             {!isManaged() && (
-              <Button
-                icon={<ExternalLinkAltIcon />}
-                variant="link"
-                component="a"
-                href={healthURL}
-                target="_blank"
-              >
+              <ExternalLinkButton href={healthURL} variant="link">
                 {t('devconsole~Learn more')}
-              </Button>
+              </ExternalLinkButton>
             )}
           </>
         }
       />
       <Form onSubmit={!viewOnly ? handleSubmit : undefined}>
         <div className="odc-add-health-checks__body">
-          <p className="odc-add-health-checks__paragraph">
+          <p className="odc-add-health-checks__paragraph" data-test="health-checks-heading">
             <Trans t={t} ns="devconsole">
               Health checks for{' '}
               <ResourceLink

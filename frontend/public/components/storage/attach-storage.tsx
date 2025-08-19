@@ -7,12 +7,11 @@ import { useExtensions } from '@console/plugin-sdk';
 import { isStorageProvider, StorageProvider } from '@console/dynamic-plugin-sdk';
 import { useDeepCompareMemoize } from '@console/shared';
 import { ErrorBoundaryPage } from '@console/shared/src/components/error';
-import PrimaryHeading from '@console/shared/src/components/heading/PrimaryHeading';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { K8sKind } from '../../module/k8s';
 import { AsyncComponent, ResourceLink, LoadingBox } from '../utils';
 import { connectToPlural } from '../../kinds';
-import './attach-storage.scss';
 
 export type AttachStorageFormProps = {
   kindObj: K8sKind;
@@ -60,45 +59,51 @@ const AttachStorageInner: React.FC<AttachStorageFormProps> = (props) => {
   return !kindObj && kindsInFlight ? (
     <LoadingBox />
   ) : (
-    <PaneBody>
+    <>
       <DocumentTitle>{t('public~Add Storage')}</DocumentTitle>
-      <div className="co-storage-heading__wrapper">
-        <Trans t={t} ns="public">
-          <PrimaryHeading>Add Storage</PrimaryHeading>
-          <div className="co-m-pane__explanation co-storage-heading__subtitle">
-            {' '}
-            to{' '}
-            <ResourceLink
-              inline
-              kind={props?.kindObj?.kind}
-              name={params.name}
-              namespace={params.ns}
-            />
-          </div>
-        </Trans>
-      </div>
-      {Object.keys(storageProvidersMap).length > 1 && (
-        <>
-          <label className="co-required">{t('public~Storage type')}</label>
-          <div className="co-storage__selection">
-            {Object.entries(storageProvidersMap).map(([k, v]) => (
-              <Radio
-                key={k}
-                isChecked={activeProvider === k}
-                onChange={handleChange}
-                label={v.name}
-                id={k}
-                value={v.name}
-                name={v.name}
+      <PageHeading
+        title={
+          <>
+            {t('public~Add Storage')}
+            <Trans t={t} ns="public">
+              {' '}
+              to{' '}
+              <ResourceLink
+                inline
+                kind={props?.kindObj?.kind}
+                name={params.name}
+                namespace={params.ns}
               />
-            ))}
-          </div>
-        </>
-      )}
-      <ErrorBoundaryPage>
-        <AsyncComponent loader={storageProvidersMap[activeProvider].Component} {...props} />
-      </ErrorBoundaryPage>
-    </PaneBody>
+            </Trans>
+          </>
+        }
+        helpText={
+          <>
+            {Object.keys(storageProvidersMap).length > 1 && (
+              <>
+                <label className="co-required">{t('public~Storage type')}</label>
+                {Object.entries(storageProvidersMap).map(([k, v]) => (
+                  <Radio
+                    key={k}
+                    isChecked={activeProvider === k}
+                    onChange={handleChange}
+                    label={v.name}
+                    id={k}
+                    value={v.name}
+                    name={v.name}
+                  />
+                ))}
+              </>
+            )}
+          </>
+        }
+      />
+      <PaneBody>
+        <ErrorBoundaryPage>
+          <AsyncComponent loader={storageProvidersMap[activeProvider].Component} {...props} />
+        </ErrorBoundaryPage>
+      </PaneBody>
+    </>
   );
 };
 

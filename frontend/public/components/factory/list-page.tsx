@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as _ from 'lodash-es';
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useParams, useNavigate } from 'react-router-dom-v5-compat';
-import { Button, TextInput, TextInputProps } from '@patternfly/react-core';
+import { useParams, useNavigate } from 'react-router-dom-v5-compat';
+import { Button, Grid, GridItem, TextInput, TextInputProps } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
+import { LinkTo } from '@console/shared/src/components/links/LinkTo';
 import { useDocumentListener } from '@console/shared/src/hooks/document-listener';
 import { KEYBOARD_SHORTCUTS } from '@console/shared/src/constants/common';
 import { useDeepCompareMemoize } from '@console/shared/src/hooks/deep-compare-memoize';
@@ -22,7 +22,6 @@ import { ErrorPage404 } from '../error';
 import { K8sKind } from '../../module/k8s/types';
 import { getReferenceForModel as referenceForModel } from '@console/dynamic-plugin-sdk/src/utils/k8s/k8s-ref';
 import { Selector } from '@console/dynamic-plugin-sdk/src/api/common-types';
-import { Dropdown } from '../utils/dropdown';
 import { Firehose } from '../utils/firehose';
 import {
   FirehoseResource,
@@ -35,9 +34,10 @@ import {
   makeQuery,
   makeReduxID,
 } from '@console/dynamic-plugin-sdk/src/utils/k8s/hooks/k8s-watcher';
-import { PageHeading } from '../utils/headings';
 import { RequireCreatePermission } from '../utils/rbac';
 import { FilterToolbar, RowFilter } from '../filter-toolbar';
+import ListPageHeader from './ListPage/ListPageHeader';
+import { SimpleDropdown } from '@patternfly/react-templates';
 
 type CreateProps = {
   action?: string;
@@ -53,27 +53,19 @@ type CreateProps = {
 
 type TextFilterProps = Omit<TextInputProps, 'type' | 'tabIndex'> & {
   label?: string;
-  parentClassName?: string;
 };
 
 export const TextFilter: React.FC<TextFilterProps> = (props) => {
-  const {
-    label,
-    className,
-    placeholder,
-    autoFocus = false,
-    parentClassName,
-    ...otherInputProps
-  } = props;
+  const { label, placeholder, autoFocus = false, ...otherInputProps } = props;
   const { ref } = useDocumentListener<HTMLInputElement>();
   const { t } = useTranslation();
   const placeholderText = placeholder ?? t('public~Filter {{label}}...', { label });
 
   return (
-    <div className={classNames('has-feedback', parentClassName)}>
+    <div className="co-text-filter">
       <TextInput
         {...otherInputProps}
-        className={classNames('co-text-filter', className)}
+        className="co-text-filter__text-input"
         data-test-id="item-filter"
         aria-label={placeholderText}
         placeholder={placeholderText}
@@ -82,7 +74,7 @@ export const TextFilter: React.FC<TextFilterProps> = (props) => {
         tabIndex={0}
         type="text"
       />
-      <span className="co-text-filter-feedback">
+      <span className="co-text-filter__feedback">
         <kbd className="co-kbd co-kbd__filter-input">{KEYBOARD_SHORTCUTS.focusFilterInput}</kbd>
       </span>
     </div>
@@ -160,11 +152,11 @@ export const ListPageWrapper: React.FC<ListPageWrapperProps> = (props) => {
   return (
     <div>
       {!_.isEmpty(data) && Filter}
-      <div className="row">
-        <div className="col-xs-12">
+      <Grid>
+        <GridItem>
           <ListComponent {...props} data={data} />
-        </div>
-      </div>
+        </GridItem>
+      </Grid>
     </div>
   );
 };
@@ -185,6 +177,7 @@ export type FireManProps = {
   resources: FirehoseResource[];
   badge?: React.ReactNode;
   helpText?: React.ReactNode;
+  helpAlert?: React.ReactNode;
   title?: string;
   autoFocus?: boolean;
 };
@@ -198,6 +191,7 @@ export const FireMan: React.FC<FireManProps & { filterList?: typeof filterList }
     createButtonText,
     createProps = {},
     helpText,
+    helpAlert,
     badge,
     title,
   } = props;
@@ -273,34 +267,38 @@ export const FireMan: React.FC<FireManProps & { filterList?: typeof filterList }
   if (canCreate) {
     if (createProps.to) {
       createLink = (
-        <Link className="co-m-primary-action" to={createProps.to}>
-          <Button variant="primary" id="yaml-create" data-test="item-create">
-            {createButtonText}
-          </Button>
-        </Link>
+        <Button
+          variant="primary"
+          id="yaml-create"
+          data-test="item-create"
+          component={LinkTo(createProps.to)}
+        >
+          {createButtonText}
+        </Button>
       );
     } else if (createProps.items) {
       createLink = (
-        <div className="co-m-primary-action">
-          <Dropdown
-            buttonClassName="pf-m-primary"
-            id="item-create"
-            dataTest="item-create"
-            menuClassName={classNames({ 'prevent-overflow': title })}
-            title={createButtonText}
-            noSelection
-            items={createProps.items}
-            onChange={runOrNavigate}
-          />
-        </div>
+        <SimpleDropdown
+          toggleProps={{
+            variant: 'primary',
+            id: 'item-create',
+            // @ts-expect-error non-prop attribute is used for cypress
+            'data-test': 'item-create',
+          }}
+          toggleContent={createButtonText}
+          initialItems={Object.keys(createProps.items).map((item) => ({
+            value: item,
+            content: createProps.items[item],
+            'data-test-dropdown-menu': item,
+          }))}
+          onSelect={(_e, value: string) => runOrNavigate(value)}
+        />
       );
     } else {
       createLink = (
-        <div className="co-m-primary-action">
-          <Button variant="primary" id="yaml-create" data-test="item-create" {...createProps}>
-            {createButtonText}
-          </Button>
-        </div>
+        <Button variant="primary" id="yaml-create" data-test="item-create" {...createProps}>
+          {createButtonText}
+        </Button>
       );
     }
     if (!_.isEmpty(createAccessReview)) {
@@ -317,20 +315,9 @@ export const FireMan: React.FC<FireManProps & { filterList?: typeof filterList }
 
   return (
     <>
-      {/* Badge rendered from PageHeading only when title is present */}
-      <PageHeading
-        title={title}
-        badge={title ? badge : null}
-        className={classNames({ 'co-m-nav-title--row': createLink })}
-      >
-        {createLink && (
-          <div className={classNames({ 'co-m-pane__createLink--no-title': !title })}>
-            {createLink}
-          </div>
-        )}
-        {!title && badge && <div>{badge}</div>}
-      </PageHeading>
-      {helpText && <p className="co-m-pane__help-text co-help-text">{helpText}</p>}
+      <ListPageHeader title={title} badge={badge} helpText={helpText} helpAlert={helpAlert}>
+        {createLink}
+      </ListPageHeader>
       <PaneBody>
         {inject(props.children, {
           resources,
@@ -352,6 +339,7 @@ export type Flatten<
 export type ListPageProps<L = any, C = any> = PageCommonProps<L, C> & {
   kind: string;
   helpText?: React.ReactNode;
+  helpAlert?: React.ReactNode;
   selector?: Selector;
   fieldSelector?: string;
   createHandler?: () => void;
@@ -375,6 +363,7 @@ export const ListPage = withFallback<ListPageProps>((props) => {
     nameFilterPlaceholder,
     filters,
     helpText,
+    helpAlert,
     kind,
     limit,
     ListComponent,
@@ -452,6 +441,7 @@ export const ListPage = withFallback<ListPageProps>((props) => {
       labelFilterPlaceholder={labelFilterPlaceholder}
       flatten={flatten}
       helpText={helpText}
+      helpAlert={helpAlert}
       label={t(labelPluralKey) || labelPlural}
       ListComponent={ListComponent}
       mock={mock}
@@ -505,6 +495,7 @@ export type MultiListPageProps<L = any, C = any> = PageCommonProps<L, C> & {
   label?: string;
   hideTextFilter?: boolean;
   helpText?: React.ReactNode;
+  helpAlert?: React.ReactNode;
   resources: (Omit<FirehoseResource, 'prop'> & { prop?: FirehoseResource['prop'] })[];
   staticFilters?: { key: string; value: string }[];
   nameFilter?: string;
@@ -522,6 +513,7 @@ export const MultiListPage: React.FC<MultiListPageProps> = (props) => {
     labelFilterPlaceholder,
     flatten,
     helpText,
+    helpAlert,
     label,
     ListComponent,
     mock,
@@ -557,6 +549,7 @@ export const MultiListPage: React.FC<MultiListPageProps> = (props) => {
       createProps={createProps}
       filterLabel={filterLabel || t('public~by name')}
       helpText={helpText}
+      helpAlert={helpAlert}
       resources={mock ? [] : resources}
       textFilter={textFilter}
       title={showTitle ? title : undefined}

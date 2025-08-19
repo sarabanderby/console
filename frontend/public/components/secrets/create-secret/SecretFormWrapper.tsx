@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { k8sCreate, k8sUpdate, K8sResourceKind, referenceFor } from '../../../module/k8s';
 import { ButtonBar } from '../../utils/button-bar';
-import { PageHeading } from '../../utils/headings';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import { resourceObjPath } from '../../utils/resource-link';
 import { ModalBody, ModalTitle, ModalSubmitFooter } from '../../factory/modal';
 import { SecretModel } from '../../../models';
@@ -44,12 +44,13 @@ export const SecretFormWrapper: React.FC<BaseEditSecretProps_> = (props) => {
   const [inProgress, setInProgress] = React.useState(false);
   const [error, setError] = React.useState();
   const [stringData, setStringData] = React.useState(
-    _.mapValues(_.get(props.obj, 'data'), (value) => {
+    Object.entries(props.obj?.data ?? {}).reduce<Record<string, string>>((acc, [key, value]) => {
       if (isBinary(null, Buffer.from(value, 'base64'))) {
         return null;
       }
-      return value ? Base64.decode(value) : '';
-    }),
+      acc[key] = value ? Base64.decode(value) : '';
+      return acc;
+    }, {}),
   );
   const [base64StringData, setBase64StringData] = React.useState(props?.obj?.data ?? {});
   const [disableForm, setDisableForm] = React.useState(false);
@@ -121,7 +122,7 @@ export const SecretFormWrapper: React.FC<BaseEditSecretProps_> = (props) => {
       <>
         <fieldset disabled={!isCreate}>
           <div className="form-group">
-            <label className="control-label co-required" htmlFor="secret-name">
+            <label className="co-required" htmlFor="secret-name">
               {t('public~Secret name')}
             </label>
             <div>

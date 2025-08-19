@@ -2,9 +2,14 @@ import * as React from 'react';
 import { formatPrometheusDuration } from '@openshift-console/plugin-shared/src/datetime/prometheus';
 import {
   Alert,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Dropdown,
   DropdownItem,
   DropdownList,
+  Grid,
+  GridItem,
   MenuToggle,
   MenuToggleElement,
 } from '@patternfly/react-core';
@@ -80,18 +85,20 @@ export const OAuthConfigDetails: React.FC<OAuthDetailsProps> = ({ obj }: { obj: 
     <>
       <PaneBody>
         <SectionHeading text={t('console-app~OAuth details')} />
-        <div className="row">
-          <div className="col-md-6">
+        <Grid hasGutter>
+          <GridItem md={6}>
             <ResourceSummary resource={obj}>
               {tokenConfig && (
-                <>
-                  <dt>{t('console-app~Access token max age')}</dt>
-                  <dd>{tokenDuration(tokenConfig.accessTokenMaxAgeSeconds)}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('console-app~Access token max age')}</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {tokenDuration(tokenConfig.accessTokenMaxAgeSeconds)}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
               )}
             </ResourceSummary>
-          </div>
-        </div>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('console-app~Identity providers')} />
@@ -139,7 +146,7 @@ export const OAuthConfigDetails: React.FC<OAuthDetailsProps> = ({ obj }: { obj: 
           </Dropdown>
         </div>
 
-        <IdentityProviders identityProviders={identityProviders} />
+        <IdentityProviders obj={obj} identityProviders={identityProviders} />
       </PaneBody>
     </>
   );

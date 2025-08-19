@@ -1,7 +1,20 @@
 import * as React from 'react';
-import { Alert, Button, Hint, HintTitle, HintBody, HintFooter } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Hint,
+  HintTitle,
+  HintBody,
+  HintFooter,
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
+import { css } from '@patternfly/react-styles';
 import { sortable } from '@patternfly/react-table';
-import * as classNames from 'classnames';
 import { Map as ImmutableMap, Set as ImmutableSet, fromJS } from 'immutable';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -57,17 +70,17 @@ import { InstallPlanReview, referenceForStepResource } from './index';
 const tableColumnClasses = [
   'pf-v6-c-table__td',
   'pf-v6-c-table__td',
-  classNames('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg', 'pf-v6-c-table__td'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-lg', 'pf-v6-c-table__td'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-xl', 'pf-v6-c-table__td'),
+  css('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg', 'pf-v6-c-table__td'),
+  css('pf-m-hidden', 'pf-m-visible-on-lg', 'pf-v6-c-table__td'),
+  css('pf-m-hidden', 'pf-m-visible-on-xl', 'pf-v6-c-table__td'),
   Kebab.columnClass,
 ];
 
 const componentsTableColumnClasses = [
   'pf-v6-c-table__td',
   'pf-v6-c-table__td',
-  classNames('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg', 'pf-v6-c-table__td'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-lg', 'pf-v6-c-table__td'),
+  css('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg', 'pf-v6-c-table__td'),
+  css('pf-m-hidden', 'pf-m-visible-on-lg', 'pf-v6-c-table__td'),
 ];
 
 export const InstallPlanHint: React.FC<InstallPlanHintProps> = ({ title, body, footer }) => {
@@ -142,7 +155,7 @@ export const InstallPlanTableRow: React.FC<RowFunctionArgs> = ({ obj }) => {
                 />
               </li>
             </ul>
-          )) || <span className="text-muted">{t('olm~None')}</span>}
+          )) || <span className="pf-v6-u-text-color-subtle">{t('olm~None')}</span>}
       </TableData>
 
       {/* Kebab */}
@@ -336,48 +349,54 @@ export const InstallPlanDetails: React.FC<InstallPlanDetailsProps> = ({ obj }) =
       )}
       <PaneBody>
         <SectionHeading text={t('olm~InstallPlan details')} />
-        <div className="row">
-          <div className="col-sm-6">
+        <Grid hasGutter>
+          <GridItem sm={6}>
             <ResourceSummary resource={obj} showAnnotations={false} />
-          </div>
-          <div className="col-sm-6">
-            <dl className="co-m-pane__details">
-              <dt>{t('olm~Status')}</dt>
-              <dd>
-                <Status status={obj.status?.phase ?? t('olm~Unknown')} />
-              </dd>
-              <dt>{t('olm~Components')}</dt>
-              {(obj.spec.clusterServiceVersionNames || []).map((csvName) => (
-                <dd key={csvName}>
-                  {obj.status.phase === 'Complete' ? (
+          </GridItem>
+          <GridItem sm={6}>
+            <DescriptionList>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Status')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <Status status={obj.status?.phase ?? t('olm~Unknown')} />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~Components')}</DescriptionListTerm>
+                {(obj.spec.clusterServiceVersionNames || []).map((csvName) => (
+                  <DescriptionListDescription key={csvName}>
+                    {obj.status.phase === 'Complete' ? (
+                      <ResourceLink
+                        kind={referenceForModel(ClusterServiceVersionModel)}
+                        name={csvName}
+                        namespace={obj.metadata.namespace}
+                        title={csvName}
+                      />
+                    ) : (
+                      <>
+                        <ResourceIcon kind={referenceForModel(ClusterServiceVersionModel)} />
+                        {csvName}
+                      </>
+                    )}
+                  </DescriptionListDescription>
+                ))}
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('olm~CatalogSources')}</DescriptionListTerm>
+                {getCatalogSources(obj).map(({ sourceName, sourceNamespace }) => (
+                  <DescriptionListDescription key={`${sourceNamespace}-${sourceName}`}>
                     <ResourceLink
-                      kind={referenceForModel(ClusterServiceVersionModel)}
-                      name={csvName}
-                      namespace={obj.metadata.namespace}
-                      title={csvName}
+                      kind={referenceForModel(CatalogSourceModel)}
+                      name={sourceName}
+                      namespace={sourceNamespace}
+                      title={sourceName}
                     />
-                  ) : (
-                    <>
-                      <ResourceIcon kind={referenceForModel(ClusterServiceVersionModel)} />
-                      {csvName}
-                    </>
-                  )}
-                </dd>
-              ))}
-              <dt>{t('olm~CatalogSources')}</dt>
-              {getCatalogSources(obj).map(({ sourceName, sourceNamespace }) => (
-                <dd key={`${sourceNamespace}-${sourceName}`}>
-                  <ResourceLink
-                    kind={referenceForModel(CatalogSourceModel)}
-                    name={sourceName}
-                    namespace={sourceNamespace}
-                    title={sourceName}
-                  />
-                </dd>
-              ))}
-            </dl>
-          </div>
-        </div>
+                  </DescriptionListDescription>
+                ))}
+              </DescriptionListGroup>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('olm~Conditions')} />

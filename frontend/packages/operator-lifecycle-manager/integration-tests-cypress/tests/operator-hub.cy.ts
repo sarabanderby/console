@@ -1,9 +1,11 @@
+import { guidedTour } from '@console/cypress-integration-tests/views/guided-tour';
 import { checkErrors, testName } from '../../../integration-tests-cypress/support';
 import { nav } from '../../../integration-tests-cypress/views/nav';
 
 describe('Interacting with OperatorHub', () => {
   before(() => {
     cy.login();
+    guidedTour.close();
     cy.createProjectWithCLI(testName);
   });
 
@@ -17,7 +19,7 @@ describe('Interacting with OperatorHub', () => {
 
   it('displays OperatorHub tile view with expected available Operators', () => {
     cy.log('navigate to OperatorHub');
-    nav.sidenav.clickNavLink(['Operators', 'OperatorHub']);
+    nav.sidenav.clickNavLink(['Ecosystem', 'OperatorHub']);
     cy.url().should('include', '/operatorhub/all-namespaces');
     cy.log('more than one tile should be present');
     cy.get('.co-catalog-tile').its('length').should('be.gt', 0);

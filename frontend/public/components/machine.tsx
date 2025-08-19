@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { sortable } from '@patternfly/react-table';
-import * as classNames from 'classnames';
+import { css } from '@patternfly/react-styles';
 import { useTranslation } from 'react-i18next';
 import {
   getMachineAddresses,
@@ -40,6 +40,14 @@ import VirtualizedTable, { TableData } from './factory/Table/VirtualizedTable';
 import { sortResourceByValue } from './factory/Table/sort';
 import { useActiveColumns } from './factory/Table/active-columns-hook';
 import { tableFilters } from './factory/table-filters';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 
 const { common } = Kebab.factory;
 const menuActions = [...Kebab.getExtensionsActionsForKind(MachineModel), ...common];
@@ -48,11 +56,11 @@ export const machineReference = referenceForModel(MachineModel);
 const tableColumnInfo = [
   { className: '', id: 'name' },
   { className: '', id: 'namespace' },
-  { className: classNames('pf-m-hidden', 'pf-m-visible-on-sm'), id: 'nodeRef' },
-  { className: classNames('pf-m-hidden', 'pf-m-visible-on-md'), id: 'phase' },
-  { className: classNames('pf-m-hidden', 'pf-m-visible-on-lg'), id: 'provider' },
-  { className: classNames('pf-m-hidden', 'pf-m-visible-on-xl'), id: 'region' },
-  { className: classNames('pf-m-hidden', 'pf-m-visible-on-xl'), id: 'avail' },
+  { className: css('pf-m-hidden', 'pf-m-visible-on-sm'), id: 'nodeRef' },
+  { className: css('pf-m-hidden', 'pf-m-visible-on-md'), id: 'phase' },
+  { className: css('pf-m-hidden', 'pf-m-visible-on-lg'), id: 'provider' },
+  { className: css('pf-m-hidden', 'pf-m-visible-on-xl'), id: 'region' },
+  { className: css('pf-m-hidden', 'pf-m-visible-on-xl'), id: 'avail' },
   { className: Kebab.columnClass, id: '' },
 ];
 
@@ -68,7 +76,7 @@ const MachineTableRow: React.FC<RowProps<MachineKind>> = ({ obj, activeColumnIDs
     <>
       <TableData
         {...tableColumnInfo[0]}
-        className={classNames(tableColumnInfo[0].className, 'co-break-word')}
+        className={css(tableColumnInfo[0].className, 'co-break-word')}
         activeColumnIDs={activeColumnIDs}
       >
         <ResourceLink
@@ -79,7 +87,7 @@ const MachineTableRow: React.FC<RowProps<MachineKind>> = ({ obj, activeColumnIDs
       </TableData>
       <TableData
         {...tableColumnInfo[1]}
-        className={classNames(tableColumnInfo[1].className, 'co-break-word')}
+        className={css(tableColumnInfo[1].className, 'co-break-word')}
         activeColumnIDs={activeColumnIDs}
       >
         <ResourceLink kind="Namespace" name={obj.metadata.namespace} />
@@ -118,12 +126,12 @@ const MachineDetails: React.SFC<MachineDetailsProps> = ({ obj }: { obj: MachineK
     <>
       <PaneBody>
         <SectionHeading text={t('public~Machine details')} />
-        <div className="row">
-          <div className="col-sm-6">
+        <Grid hasGutter>
+          <GridItem sm={6}>
             <ResourceSummary resource={obj} />
-          </div>
-          <div className="col-sm-6">
-            <dl className="co-m-pane__details">
+          </GridItem>
+          <GridItem sm={6}>
+            <DescriptionList>
               <DetailsItem label={t('public~Phase')} obj={obj} path="status.phase">
                 <Status status={getMachinePhase(obj)} />
               </DetailsItem>
@@ -135,44 +143,46 @@ const MachineDetails: React.SFC<MachineDetailsProps> = ({ obj }: { obj: MachineK
                 {providerState}
               </DetailsItem>
               {nodeName && (
-                <>
-                  <dt>{t('public~Node')}</dt>
-                  <dd>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Node')}</DescriptionListTerm>
+                  <DescriptionListDescription>
                     <NodeLink name={nodeName} />
-                  </dd>
-                </>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
               )}
               {machineRole && (
-                <>
-                  <dt>{t('public~Machine role')}</dt>
-                  <dd>{machineRole}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Machine role')}</DescriptionListTerm>
+                  <DescriptionListDescription>{machineRole}</DescriptionListDescription>
+                </DescriptionListGroup>
               )}
               {instanceType && (
-                <>
-                  <dt>{t('public~Instance type')}</dt>
-                  <dd>{instanceType}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Instance type')}</DescriptionListTerm>
+                  <DescriptionListDescription>{instanceType}</DescriptionListDescription>
+                </DescriptionListGroup>
               )}
               {region && (
-                <>
-                  <dt>{t('public~Region')}</dt>
-                  <dd>{region}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Region')}</DescriptionListTerm>
+                  <DescriptionListDescription>{region}</DescriptionListDescription>
+                </DescriptionListGroup>
               )}
               {zone && (
-                <>
-                  <dt>{t('public~Availability zone')}</dt>
-                  <dd>{zone}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Availability zone')}</DescriptionListTerm>
+                  <DescriptionListDescription>{zone}</DescriptionListDescription>
+                </DescriptionListGroup>
               )}
-              <dt>{t('public~Machine addresses')}</dt>
-              <dd>
-                <NodeIPList ips={getMachineAddresses(obj)} expand />
-              </dd>
-            </dl>
-          </div>
-        </div>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('public~Machine addresses')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <NodeIPList ips={getMachineAddresses(obj)} expand />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('public~Conditions')} />
@@ -282,7 +292,10 @@ export const MachinePage: React.FC<MachinePageProps> = ({
     selector,
     namespace,
   });
-
+  const createAccessReview = {
+    groupVersionKind: referenceForModel(MachineModel),
+    namespace: namespace || 'default',
+  };
   const machineFilter = [
     { type: 'name', filterGroupName: 'Machine', filter: tableFilters(isExactSearch).machine },
   ];
@@ -291,8 +304,11 @@ export const MachinePage: React.FC<MachinePageProps> = ({
   return (
     <>
       <ListPageHeader title={showTitle ? t(MachineModel.labelPluralKey) : undefined}>
-        <ListPageCreate groupVersionKind={referenceForModel(MachineModel)}>
-          {t('public~Create machine')}
+        <ListPageCreate
+          createAccessReview={createAccessReview}
+          groupVersionKind={referenceForModel(MachineModel)}
+        >
+          {t('public~Create Machine')}
         </ListPageCreate>
       </ListPageHeader>
       <ListPageBody>

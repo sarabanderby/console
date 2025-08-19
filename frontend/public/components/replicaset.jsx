@@ -1,7 +1,7 @@
 // TODO file should be renamed replica-set.jsx to match convention
 
 import * as _ from 'lodash-es';
-import * as classNames from 'classnames';
+import { css } from '@patternfly/react-styles';
 import { Link } from 'react-router-dom-v5-compat';
 import { sortable } from '@patternfly/react-table';
 import { useTranslation } from 'react-i18next';
@@ -19,10 +19,10 @@ import {
   resourcePath,
   LabelList,
   OwnerReferences,
-  Timestamp,
   PodsComponent,
   RuntimeClass,
 } from './utils';
+import { Timestamp } from '@console/shared/src/components/datetime/Timestamp';
 import { ResourceEventStream } from './events';
 import { VolumesTable } from './volumes-table';
 import {
@@ -34,6 +34,14 @@ import {
 import { PodDisruptionBudgetField } from '@console/app/src/components/pdb/PodDisruptionBudgetField';
 
 import { referenceFor, referenceForModel } from '../module/k8s';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 
 const Details = ({ obj: replicaSet }) => {
   const revision = _.get(replicaSet, [
@@ -46,25 +54,25 @@ const Details = ({ obj: replicaSet }) => {
     <>
       <PaneBody>
         <SectionHeading text={t('public~ReplicaSet details')} />
-        <div className="row">
-          <div className="col-md-6">
+        <Grid hasGutter>
+          <GridItem md={6}>
             <ResourceSummary resource={replicaSet} showPodSelector showNodeSelector showTolerations>
               {revision && (
-                <>
-                  <dt>{t('public~Deployment revision')}</dt>
-                  <dd>{revision}</dd>
-                </>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('public~Deployment revision')}</DescriptionListTerm>
+                  <DescriptionListDescription>{revision}</DescriptionListDescription>
+                </DescriptionListGroup>
               )}
             </ResourceSummary>
-          </div>
-          <div className="col-md-6">
-            <dl className="co-m-pane__details">
+          </GridItem>
+          <GridItem md={6}>
+            <DescriptionList>
               <ResourcePodCount resource={replicaSet} />
               <RuntimeClass obj={replicaSet} />
               <PodDisruptionBudgetField obj={replicaSet} />
-            </dl>
-          </div>
-        </div>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('public~Containers')} />
@@ -132,10 +140,10 @@ const kind = 'ReplicaSet';
 const tableColumnClasses = [
   '',
   '',
-  classNames('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-lg'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-lg'),
-  classNames('pf-m-hidden', 'pf-m-visible-on-xl'),
+  css('pf-m-hidden', 'pf-m-visible-on-sm', 'pf-v6-u-w-16-on-lg'),
+  css('pf-m-hidden', 'pf-m-visible-on-lg'),
+  css('pf-m-hidden', 'pf-m-visible-on-lg'),
+  css('pf-m-hidden', 'pf-m-visible-on-xl'),
   Kebab.columnClass,
 ];
 
@@ -148,10 +156,7 @@ const ReplicaSetTableRow = ({ obj }) => {
       <TableData className={tableColumnClasses[0]}>
         <ResourceLink kind={kind} name={obj.metadata.name} namespace={obj.metadata.namespace} />
       </TableData>
-      <TableData
-        className={classNames(tableColumnClasses[1], 'co-break-word')}
-        columnID="namespace"
-      >
+      <TableData className={css(tableColumnClasses[1], 'co-break-word')} columnID="namespace">
         <ResourceLink kind="Namespace" name={obj.metadata.namespace} />
       </TableData>
       <TableData className={tableColumnClasses[2]}>

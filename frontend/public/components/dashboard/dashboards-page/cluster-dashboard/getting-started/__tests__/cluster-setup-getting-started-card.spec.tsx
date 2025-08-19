@@ -7,8 +7,8 @@ import { useIdentityProviderLink } from '../cluster-setup-identity-provider-link
 import { useAlertReceiverLink } from '../cluster-setup-alert-receiver-link';
 
 jest.mock('react', () => ({
-  ...require.requireActual('react'),
-  useLayoutEffect: require.requireActual('react').useEffect,
+  ...jest.requireActual('react'),
+  useLayoutEffect: jest.requireActual('react').useEffect,
 }));
 
 jest.mock('@console/shared/src/hooks/useCanClusterUpgrade', () => ({
@@ -52,7 +52,7 @@ describe('ClusterSetupGettingStartedCard', () => {
     useAlertReceiverLinkMock.mockReturnValue({
       id: 'alert-receivers',
       title: 'Configure alert receivers',
-      href: '/monitoring/alertmanagerconfig',
+      href: '/settings/cluster/alertmanagerconfig',
     });
 
     const wrapper = shallow(<ClusterSetupGettingStartedCard />);
@@ -67,7 +67,7 @@ describe('ClusterSetupGettingStartedCard', () => {
       {
         id: 'alert-receivers',
         title: 'Configure alert receivers',
-        href: '/monitoring/alertmanagerconfig',
+        href: '/settings/cluster/alertmanagerconfig',
       },
     ]);
     expect(wrapper.find(GettingStartedCard).props().moreLink).toMatchObject({

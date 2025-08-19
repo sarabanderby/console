@@ -1,4 +1,4 @@
-import { Button } from '@patternfly/react-core';
+import { Button, DescriptionListDescription, DescriptionListTerm } from '@patternfly/react-core';
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as _ from 'lodash';
 import * as Router from 'react-router-dom-v5-compat';
@@ -8,8 +8,10 @@ import {
   DetailsPage,
   RowFunctionArgs,
 } from '@console/internal/components/factory';
-import { ResourceKebab, ResourceLink, Kebab } from '@console/internal/components/utils';
+import { ResourceLink } from '@console/internal/components/utils';
 import { referenceForModel } from '@console/internal/module/k8s';
+import { LazyActionMenu } from '@console/shared/src';
+import { DescriptionListTermHelp } from '@console/shared/src/components/description-list/DescriptionListTermHelp';
 import {
   testSubscription,
   testSubscriptions,
@@ -40,7 +42,7 @@ import {
 } from './subscription';
 
 jest.mock('react-router-dom-v5-compat', () => ({
-  ...require.requireActual('react-router-dom-v5-compat'),
+  ...jest.requireActual('react-router-dom-v5-compat'),
   useParams: jest.fn(),
 }));
 
@@ -78,34 +80,9 @@ describe('SubscriptionTableRow', () => {
   });
 
   it('renders actions kebab', () => {
-    const menuArgs = [ClusterServiceVersionModel, subscription];
-    expect(wrapper.find(ResourceKebab).props().kind).toEqual(referenceForModel(SubscriptionModel));
-    expect(wrapper.find(ResourceKebab).props().resource).toEqual(subscription);
-    expect(wrapper.find(ResourceKebab).props().actions[0]).toEqual(Kebab.factory.Edit);
-    expect(
-      wrapper
-        .find(ResourceKebab)
-        .props()
-        .actions[1](...menuArgs).labelKey,
-    ).toEqual('olm~Remove Subscription');
-    expect(
-      wrapper
-        .find(ResourceKebab)
-        .props()
-        .actions[1](...menuArgs).callback,
-    ).toBeDefined();
-    expect(
-      wrapper
-        .find(ResourceKebab)
-        .props()
-        .actions[2](...menuArgs).labelKey,
-    ).toEqual('olm~View ClusterServiceVersion...');
-    expect(
-      wrapper
-        .find(ResourceKebab)
-        .props()
-        .actions[2](...menuArgs).href,
-    ).toEqual(`/k8s/ns/default/${ClusterServiceVersionModel.plural}/testapp.v1.0.0`);
+    expect(wrapper.find(LazyActionMenu).props().context).toEqual({
+      [referenceForModel(SubscriptionModel)]: subscription,
+    });
   });
 
   it('renders column for namespace name', () => {
@@ -229,15 +206,16 @@ describe('SubscriptionUpdates', () => {
 
   it('renders link to configure update channel', () => {
     const channel = wrapper
-      .findWhere(
-        (node) =>
-          node.type() === 'dt' &&
-          node.hasClass('co-detail-table__section-header') &&
-          node.text().includes('Update channel'),
+      .findWhere((node) =>
+        node.equals(
+          <DescriptionListTermHelp
+            text="Update channel"
+            textHelp="The channel to track and receive the updates from."
+          />,
+        ),
       )
       .parents()
       .at(0)
-      .shallow()
       .find(Button)
       .render()
       .text();
@@ -247,15 +225,16 @@ describe('SubscriptionUpdates', () => {
 
   it('renders link to set approval strategy', () => {
     const strategy = wrapper
-      .findWhere(
-        (node) =>
-          node.type() === 'dt' &&
-          node.hasClass('co-detail-table__section-header') &&
-          node.text().includes('Update approval'),
+      .findWhere((node) =>
+        node.equals(
+          <DescriptionListTermHelp
+            text="Update approval"
+            textHelp="The strategy to determine either manual or automatic updates."
+          />,
+        ),
       )
       .parents()
       .at(0)
-      .shallow()
       .find(Button)
       .render()
       .text();
@@ -287,10 +266,12 @@ describe('SubscriptionDetails', () => {
     wrapper = wrapper.setProps({ obj, clusterServiceVersions: [testClusterServiceVersion] });
 
     const link = wrapper
-      .findWhere((node) => node.equals(<dt>Installed version</dt>))
+      .findWhere((node) =>
+        node.equals(<DescriptionListTerm>Installed version</DescriptionListTerm>),
+      )
       .parents()
       .at(0)
-      .find('dd')
+      .find(DescriptionListDescription)
       .find(ResourceLink)
       .at(0);
 
@@ -300,10 +281,10 @@ describe('SubscriptionDetails', () => {
 
   it('renders link to catalog source', () => {
     const link = wrapper
-      .findWhere((node) => node.equals(<dt>CatalogSource</dt>))
+      .findWhere((node) => node.equals(<DescriptionListTerm>CatalogSource</DescriptionListTerm>))
       .parents()
       .at(0)
-      .find('dd')
+      .find(DescriptionListDescription)
       .find(ResourceLink)
       .at(0);
 
@@ -313,25 +294,12 @@ describe('SubscriptionDetails', () => {
 
 describe('SubscriptionDetailsPage', () => {
   it('renders `DetailsPage` with correct props', () => {
-    const menuArgs = [ClusterServiceVersionModel, testSubscription];
     jest.spyOn(Router, 'useParams').mockReturnValue({ ns: 'default', name: 'example-sub' });
     const wrapper = shallow(<SubscriptionDetailsPage namespace="default" />);
 
     expect(wrapper.find(DetailsPage).props().kind).toEqual(referenceForModel(SubscriptionModel));
     expect(wrapper.find(DetailsPage).props().pages.length).toEqual(2);
-    expect(wrapper.find(DetailsPage).props().menuActions[0]).toEqual(Kebab.factory.Edit);
-    expect(
-      wrapper
-        .find(DetailsPage)
-        .props()
-        .menuActions[1](...menuArgs).labelKey,
-    ).toEqual('olm~Remove Subscription');
-    expect(
-      wrapper
-        .find(DetailsPage)
-        .props()
-        .menuActions[2](...menuArgs).labelKey,
-    ).toEqual(`olm~View ClusterServiceVersion...`);
+    expect(wrapper.find(DetailsPage).props().customActionMenu).toBeDefined();
   });
 
   it('passes additional resources to watch', () => {

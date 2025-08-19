@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { DescriptionList, Grid, GridItem } from '@patternfly/react-core';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { DetailsPage } from '@console/internal/components/factory';
@@ -21,12 +22,12 @@ const PodDisruptionBudgetDetails: React.FC<PodDisruptionBudgetDetailsProps> = ({
   return (
     <PaneBody>
       <SectionHeading text={t('console-app~PodDisruptionBudget details')} />
-      <div className="row">
-        <div className="col-sm-6">
+      <Grid hasGutter>
+        <GridItem sm={6}>
           <ResourceSummary resource={obj} showPodSelector />
-        </div>
-        <div className="col-sm-6">
-          <dl className="co-m-pane__details">
+        </GridItem>
+        <GridItem sm={6}>
+          <DescriptionList>
             <DetailsItem
               label={
                 !_.isNil(obj.spec.minAvailable)
@@ -45,9 +46,9 @@ const PodDisruptionBudgetDetails: React.FC<PodDisruptionBudgetDetailsProps> = ({
             >
               {obj.status.disruptionsAllowed}
             </DetailsItem>
-          </dl>
-        </div>
-      </div>
+          </DescriptionList>
+        </GridItem>
+      </Grid>
     </PaneBody>
   );
 };

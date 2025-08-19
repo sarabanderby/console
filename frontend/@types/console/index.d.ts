@@ -1,3 +1,4 @@
+/// <reference path="./jest.d.ts" />
 /// <reference path="./react.d.ts" />
 /// <reference path="./generated/graphql-queries.d.ts" />
 
@@ -21,6 +22,8 @@ declare interface Window {
     branding: string;
     consoleVersion: string;
     customLogoURL: string;
+    customLogosConfigured: boolean;
+    customFaviconsConfigured: boolean;
     customProductName: string;
     documentationBaseURL: string;
     kubeAPIServerURL: string;
@@ -54,7 +57,10 @@ declare interface Window {
     nodeOperatingSystems: string[];
     hubConsoleURL: string;
     k8sMode: string;
-    capabilities: Record<string, string>[];
+    capabilities: {
+      name: string;
+      visibility: { state: 'Enabled' | 'Disabled' };
+    }[];
   };
   /** (OCPBUGS-46415) Do not override this string! To add new errors please append to windowError if it exists*/
   windowError?: string;

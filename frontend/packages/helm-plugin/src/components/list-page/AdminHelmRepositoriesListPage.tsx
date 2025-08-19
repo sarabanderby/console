@@ -5,8 +5,9 @@ import NamespacedPage, {
   NamespacedPageVariants,
 } from '@console/dev-console/src/components/NamespacedPage';
 import { withStartGuide } from '@console/internal/components/start-guide';
-import { EmptyBox, PageHeading } from '@console/internal/components/utils';
+import { EmptyBox } from '@console/internal/components/utils';
 import { FLAGS, useFlag } from '@console/shared';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import RepositoriesPage from './RepositoriesListPage';
 
 const PageContents: React.FC = () => {
@@ -23,7 +24,7 @@ const PageContents: React.FC = () => {
     />
   ) : (
     <>
-      <PageHeading title={t('helm-plugin~Helm Repositories')} className="co-m-nav-title--row" />
+      <PageHeading title={t('helm-plugin~Helm Repositories')} />
       <EmptyBox label={t('helm-plugin~Helm Repositories')} />
     </>
   );

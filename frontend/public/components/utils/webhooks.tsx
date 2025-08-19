@@ -123,7 +123,7 @@ export const WebhookTriggers: React.FC<WebhookTriggersProps> = (props) => {
     const triggerProperty = getTriggerProperty(trigger);
     const secretName = _.get(trigger, [triggerProperty, 'secretReference', 'name']);
     if (!secretName) {
-      return <span className="text-muted">No secret</span>;
+      return <span className="pf-v6-u-text-color-subtle">No secret</span>;
     }
     const webhookSecret: K8sResourceKind = webhookSecrets.find(
       (secret: K8sResourceKind) => secret.metadata.name === secretName,
@@ -199,7 +199,7 @@ export const WebhookTriggers: React.FC<WebhookTriggersProps> = (props) => {
         />
       )}
       <SectionHeading text={t('public~Webhooks')} />
-      <div className="co-table-container pf-v6-c-scroll-inner-wrapper">
+      <div className="co-table-container">
         <table className="pf-v6-c-table pf-m-compact pf-m-border-rows">
           <thead className="pf-v6-c-table__thead">
             <tr className="pf-v6-c-table__tr">

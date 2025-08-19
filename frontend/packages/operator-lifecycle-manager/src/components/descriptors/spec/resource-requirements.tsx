@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button } from '@patternfly/react-core';
+import { Button, Grid, GridItem } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -19,9 +19,13 @@ export const ResourceRequirements: React.FC<ResourceRequirementsProps> = (props)
   const { cpu, memory, storage, onChangeCPU, onChangeMemory, onChangeStorage, path = '' } = props;
 
   return (
-    <div className="row co-m-form-row">
-      <div className="col-xs-4">
-        <label style={{ fontWeight: 300 }} className="text-muted" htmlFor={`${path}.cpu`}>
+    <>
+      <GridItem span={4}>
+        <label
+          style={{ fontWeight: 300 }}
+          className="pf-v6-u-text-color-subtle"
+          htmlFor={`${path}.cpu`}
+        >
           {t('olm~CPU cores')}
         </label>
         <span className="pf-v6-c-form-control">
@@ -34,9 +38,13 @@ export const ResourceRequirements: React.FC<ResourceRequirementsProps> = (props)
             placeholder="500m"
           />
         </span>
-      </div>
-      <div className="col-xs-4">
-        <label style={{ fontWeight: 300 }} className="text-muted" htmlFor={`${path}.memory`}>
+      </GridItem>
+      <GridItem span={4}>
+        <label
+          style={{ fontWeight: 300 }}
+          className="pf-v6-u-text-color-subtle"
+          htmlFor={`${path}.memory`}
+        >
           {t('olm~Memory')}
         </label>
         <span className="pf-v6-c-form-control">
@@ -49,11 +57,11 @@ export const ResourceRequirements: React.FC<ResourceRequirementsProps> = (props)
             placeholder="50Mi"
           />
         </span>
-      </div>
-      <div className="col-xs-4">
+      </GridItem>
+      <GridItem span={4}>
         <label
           style={{ fontWeight: 300 }}
-          className="text-muted"
+          className="pf-v6-u-text-color-subtle"
           htmlFor={`${path}.ephemeral-storage`}
         >
           {t('olm~Storage')}
@@ -68,8 +76,8 @@ export const ResourceRequirements: React.FC<ResourceRequirementsProps> = (props)
             placeholder="50Mi"
           />
         </span>
-      </div>
-    </div>
+      </GridItem>
+    </>
   );
 };
 
@@ -99,18 +107,18 @@ export const ResourceRequirementsModal = withHandlePromise(
       <form onSubmit={(e) => submit(e)} className="modal-content">
         <ModalTitle>{props.title}</ModalTitle>
         <ModalBody>
-          <div className="row co-m-form-row">
-            <div className="col-sm-12">{props.description}</div>
-          </div>
-          <ResourceRequirements
-            cpu={cpu}
-            memory={memory}
-            storage={storage}
-            onChangeCPU={setCPU}
-            onChangeMemory={setMemory}
-            onChangeStorage={setStorage}
-            path={path}
-          />
+          <Grid hasGutter>
+            <GridItem>{props.description}</GridItem>
+            <ResourceRequirements
+              cpu={cpu}
+              memory={memory}
+              storage={storage}
+              onChangeCPU={setCPU}
+              onChangeMemory={setMemory}
+              onChangeStorage={setStorage}
+              path={path}
+            />
+          </Grid>
         </ModalBody>
         <ModalSubmitFooter
           errorMessage={props.errorMessage}

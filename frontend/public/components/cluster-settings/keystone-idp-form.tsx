@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { ActionGroup, Button } from '@patternfly/react-core';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import { SecretModel, ConfigMapModel } from '../../models';
 import { IdentityProvider, k8sCreate, OAuthKind } from '../../module/k8s';
-import { ButtonBar, AsyncComponent, PageHeading } from '../utils';
+import { ButtonBar, AsyncComponent } from '../utils';
 import { addIDP, getOAuthResource as getOAuth, redirectToOAuthPage, mockNames } from './';
 import { IDPNameInput } from './idp-name-input';
 import { IDPCAFileInput } from './idp-cafile-input';
@@ -181,12 +182,13 @@ export const AddKeystonePage = () => {
         <form onSubmit={submit} name="form">
           <IDPNameInput value={name} onChange={(e) => setName(e.currentTarget.value)} />
           <div className="form-group">
-            <label className="control-label co-required" htmlFor="domain-name">
+            <label className="co-required" htmlFor="domain-name">
               {t('public~Domain name')}
             </label>
             <span className="pf-v6-c-form-control">
               <input
                 type="text"
+                aria-label={t('public~Domain name')}
                 onChange={(e) => setDomainName(e.currentTarget.value)}
                 value={domainName}
                 id="domain-name"
@@ -195,12 +197,13 @@ export const AddKeystonePage = () => {
             </span>
           </div>
           <div className="form-group">
-            <label className="control-label co-required" htmlFor="url">
+            <label className="co-required" htmlFor="url">
               {t('public~URL')}
             </label>
             <span className="pf-v6-c-form-control">
               <input
                 type="url"
+                aria-label={t('public~URL')}
                 onChange={(e) => setUrl(e.currentTarget.value)}
                 value={url}
                 id="url"
@@ -212,7 +215,11 @@ export const AddKeystonePage = () => {
               {t('public~The remote URL to connect to.')}
             </p>
           </div>
-          <IDPCAFileInput value={caFileContent} onChange={(c: string) => setCaFileContent(c)} />
+          <IDPCAFileInput
+            id="ca-file-input"
+            value={caFileContent}
+            onChange={(c: string) => setCaFileContent(c)}
+          />
           <div className="form-group">
             <DroppableFileInput
               onChange={(c: string) => setCertFileContent(c)}

@@ -30,32 +30,6 @@
     }
   },
   {
-    "type": "console.navigation/href",
-    "properties": {
-      "id": "operatorhub",
-      "section": "operators",
-      "name": "%olm~OperatorHub%",
-      "href": "/operatorhub"
-    },
-    "flags": {
-      "required": ["CAN_LIST_PACKAGE_MANIFEST", "CAN_LIST_OPERATOR_GROUP"]
-    }
-  },
-  {
-    "type": "console.navigation/resource-ns",
-    "properties": {
-      "id": "operators",
-      "section": "operators",
-      "name": "%olm~Installed Operators%",
-      "model": {
-        "kind": "ClusterServiceVersion",
-        "version": "v1alpha1",
-        "group": "operators.coreos.com"
-      },
-      "startsWith": ["operators.coreos.com", "clusterserviceversions"]
-    }
-  },
-  {
     "type": "console.topology/details/tab-section",
     "properties": {
       "id": "topology-tab-section-operator-link",
@@ -78,7 +52,9 @@
     "properties": {
       "id": "operator-backed-panel-tab-section-details",
       "tab": "topology-side-bar-tab-details",
-      "provider": { "$codeRef": "topologySidebarDetailsSections.useOperatorBackedPanelDetailsSection" }
+      "provider": {
+        "$codeRef": "topologySidebarDetailsSections.useOperatorBackedPanelDetailsSection"
+      }
     }
   },
   {
@@ -86,7 +62,9 @@
     "properties": {
       "id": "operator-backed-panel-tab-section-resource",
       "tab": "topology-side-bar-tab-resource",
-      "provider": { "$codeRef": "topologySidebarResourceSections.useOperatorBackedPanelResourceSection" }
+      "provider": {
+        "$codeRef": "topologySidebarResourceSections.useOperatorBackedPanelResourceSection"
+      }
     }
   },
   {
@@ -103,6 +81,17 @@
       "component": {
         "$codeRef": "install.OperatorInstallStatusPage"
       }
+    }
+  },
+  {
+    "type": "console.action/resource-provider",
+    "properties": {
+      "model": {
+        "version": "v1alpha1",
+        "kind": "Subscription",
+        "group": "operators.coreos.com"
+      },
+      "provider": { "$codeRef": "subscriptionProvider.useSubscriptionActionsProvider" }
     }
   }
 ]

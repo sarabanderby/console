@@ -1,6 +1,6 @@
 import * as _ from 'lodash-es';
 import * as React from 'react';
-import * as classNames from 'classnames';
+import { css } from '@patternfly/react-styles';
 import {
   sortable,
   SortByDirection,
@@ -48,6 +48,14 @@ import {
   isResourceListPage as isDynamicResourceListPage,
 } from '@console/dynamic-plugin-sdk';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 
 const { common } = Kebab.factory;
 
@@ -168,23 +176,29 @@ const Details: React.FC<{ obj: CustomResourceDefinitionKind }> = ({ obj: crd }) 
     <>
       <PaneBody>
         <SectionHeading text={t('public~CustomResourceDefinition details')} />
-        <div className="row">
-          <div className="col-sm-6">
+        <Grid hasGutter>
+          <GridItem sm={6}>
             <ResourceSummary showPodSelector={false} showNodeSelector={false} resource={crd} />
-          </div>
-          <div className="col-sm-6">
-            <dl className="co-m-pane__details">
-              <dt>{t('public~Established')}</dt>
-              <dd>
-                <Established crd={crd} />
-              </dd>
+          </GridItem>
+          <GridItem sm={6}>
+            <DescriptionList>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('public~Established')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <Established crd={crd} />
+                </DescriptionListDescription>
+              </DescriptionListGroup>
               <DetailsItem label={t('public~Group')} obj={crd} path="spec.group" />
-              <dt>{t('public~Latest version')}</dt>
-              <dd>{getLatestVersionForCRD(crd)}</dd>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('public~Latest version')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {getLatestVersionForCRD(crd)}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
               <DetailsItem label={t('public~Scope')} obj={crd} path="spec.scope" />
-            </dl>
-          </div>
-        </div>
+            </DescriptionList>
+          </GridItem>
+        </Grid>
       </PaneBody>
       <PaneBody>
         <SectionHeading text={t('public~Conditions')} />
@@ -272,7 +286,7 @@ export const CustomResourceDefinitionsList: React.FC<CustomResourceDefinitionsLi
             />
           </span>
         </TableData>
-        <TableData className={classNames(tableColumnClasses[1], 'co-break-word')}>
+        <TableData className={css(tableColumnClasses[1], 'co-break-word')}>
           {crd.spec.group}
         </TableData>
         <TableData className={tableColumnClasses[2]}>{getLatestVersionForCRD(crd)}</TableData>

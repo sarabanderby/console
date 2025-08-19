@@ -45,7 +45,7 @@ import {
   PersistentVolumeClaimKind,
   StorageClassResourceKind,
 } from '@console/internal/module/k8s';
-import { RedExclamationCircleIcon, isCephProvisioner } from '@console/shared';
+import { isCephProvisioner } from '@console/shared';
 import { getName, getRequestedPVCSize, onlyPvcSCs } from '@console/shared/src/selectors';
 import { getPVCAccessModes, AccessModeSelector } from '../../access-modes/access-mode';
 
@@ -132,7 +132,7 @@ const ClonePVCModal = withHandlePromise((props: ClonePVCModalProps) => {
   };
 
   return (
-    <form onSubmit={submit} name="form" className="modal-content">
+    <form onSubmit={submit} name="form" className="modal-content pf-v6-c-form pf-v6-c-form--no-gap">
       <ModalTitle>{t('console-app~Clone')}</ModalTitle>
       <ModalBody>
         <FormGroup
@@ -183,7 +183,7 @@ const ClonePVCModal = withHandlePromise((props: ClonePVCModalProps) => {
           {!validSize && (
             <FormHelperText>
               <HelperText>
-                <HelperTextItem variant="error" icon={<RedExclamationCircleIcon />}>
+                <HelperTextItem variant="error">
                   {t('console-app~Size should be equal or greater than the requested size of PVC.')}
                 </HelperTextItem>
               </HelperText>
@@ -210,7 +210,7 @@ const ClonePVCModal = withHandlePromise((props: ClonePVCModalProps) => {
           )}
         </FormGroup>
         <div className="co-clone-pvc-modal__details">
-          <p className="text-muted">{t('console-app~PVC details')}</p>
+          <p className="pf-v6-u-text-color-subtle">{t('console-app~PVC details')}</p>
           <div className="co-clone-pvc-modal__details-section">
             <div>
               <div>

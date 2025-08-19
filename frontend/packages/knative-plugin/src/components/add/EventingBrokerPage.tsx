@@ -6,8 +6,8 @@ import NamespacedPage, {
 } from '@console/dev-console/src/components/NamespacedPage';
 import QueryFocusApplication from '@console/dev-console/src/components/QueryFocusApplication';
 import { QUERY_PROPERTIES } from '@console/dev-console/src/const';
-import { PageHeading } from '@console/internal/components/utils';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import AddBroker from './brokers/AddBroker';
 
 const EventingBrokerPage: React.FC = () => {
@@ -18,11 +18,12 @@ const EventingBrokerPage: React.FC = () => {
   return (
     <NamespacedPage disabled variant={NamespacedPageVariants.light}>
       <DocumentTitle>{t('knative-plugin~Broker')}</DocumentTitle>
-      <PageHeading title={t('knative-plugin~Broker')}>
-        {t(
+      <PageHeading
+        title={t('knative-plugin~Broker')}
+        helpText={t(
           'knative-plugin~Create a Broker to define an event mesh for collecting a pool of events and route those events based on attributes, through triggers',
         )}
-      </PageHeading>
+      />
       <QueryFocusApplication>
         {(selectedApplication) => (
           <AddBroker

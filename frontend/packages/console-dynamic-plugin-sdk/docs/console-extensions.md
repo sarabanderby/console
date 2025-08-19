@@ -215,7 +215,7 @@ This extension allows plugins to contribute a provider for a catalog item type. 
 
 ### Summary 
 
-This extension allows plugins to contribute a new type of catalog item. For example, a Helm plugin can define<br/>a new catalog item type as HelmCharts that it wants to contribute to the Developer Catalog.
+This extension allows plugins to contribute a new type of catalog item. For example, a Helm plugin can define<br/>a new catalog item type as HelmCharts that it wants to contribute to the Software Catalog.
 
 ### Properties
 
@@ -355,7 +355,7 @@ Adds an item to the Details card of Overview Dashboard
 | ---- | ---------- | -------- | ----------- |
 | `title` | `string` | no | Details card title |
 | `component` | `CodeRef<React.ComponentType<{}>>` | no | The value, rendered by the OverviewDetailItem component |
-| `valueClassName` | `string` | yes | Value for a className |
+| `valueClassName` | `string` | yes | Optional class name for the value |
 | `isLoading` | `CodeRef<() => boolean>` | yes | Function returning the loading state of the component |
 | `error` | `CodeRef<() => string>` | yes | Function returning errors to be displayed by the component |
 
@@ -1038,7 +1038,7 @@ This extension can be used to add a tab on the resource details page.
 | Name | Value Type | Optional | Description |
 | ---- | ---------- | -------- | ----------- |
 | `model` | `ExtensionK8sKindVersionModel` | no | The model for which this provider show tab. |
-| `page` | `{ name: string; href: string; }` | no | The page to be show in horizontal tab. It takes tab name as name and href of the tab |
+| `page` | `{ name: string; href: string; }` | no | The page to be show in horizontal tab. It takes tab name as name and href of the tab.<br/>Note: any special characters in href are encoded, and href is treated as a single<br/>path element. |
 | `component` | `CodeRef<React.ComponentType<PageComponentProps<K8sResourceCommon>>>` | no | The component to be rendered when the route matches. |
 
 ---

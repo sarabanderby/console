@@ -1,4 +1,12 @@
 import * as React from 'react';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 import * as _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Conditions } from '@console/internal/components/conditions';
@@ -23,19 +31,21 @@ const TriggerDetails: React.FC<TriggerDetailsProps> = ({ obj: trigger }) => {
     <>
       <PaneBody>
         <SectionHeading text={t('knative-plugin~Trigger details')} />
-        <div className="row">
-          <div className="col-sm-6">
+        <Grid hasGutter>
+          <GridItem sm={6}>
             <ResourceSummary resource={trigger} />
-          </div>
-          <div className="col-sm-6">
+          </GridItem>
+          <GridItem sm={6}>
             {filterData.length > 0 && (
               <div className="kn-resource-link-list kn-resource-link-list--addSpaceBelow">
-                <dl>
-                  <dt>{t('knative-plugin~Filter')}</dt>
-                  <dd>
-                    <FilterTable filters={filterData} />
-                  </dd>
-                </dl>
+                <DescriptionList>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('knative-plugin~Filter')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <FilterTable filters={filterData} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
               </div>
             )}
             {trigger.spec?.broker && (
@@ -54,8 +64,8 @@ const TriggerDetails: React.FC<TriggerDetailsProps> = ({ obj: trigger }) => {
                 kind={referenceFor(trigger.spec.subscriber.ref)}
               />
             )}
-          </div>
-        </div>
+          </GridItem>
+        </Grid>
       </PaneBody>
       {_.isArray(trigger?.status?.conditions) && (
         <PaneBody>

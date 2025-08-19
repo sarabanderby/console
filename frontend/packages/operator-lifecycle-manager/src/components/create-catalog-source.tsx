@@ -10,16 +10,16 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-import { RadioGroup } from '@console/internal/components/radio';
+import { RadioGroup, RadioGroupItems } from '@console/internal/components/radio';
 import {
   ButtonBar,
   history,
   NsDropdown,
-  PageHeading,
   withHandlePromise,
 } from '@console/internal/components/utils';
 import { k8sCreate } from '@console/internal/module/k8s';
 import { DocumentTitle } from '@console/shared/src/components/document-title/DocumentTitle';
+import { PageHeading } from '@console/shared/src/components/heading/PageHeading';
 import PaneBody from '@console/shared/src/components/layout/PaneBody';
 import { CatalogSourceModel } from '../models';
 
@@ -72,16 +72,18 @@ export const CreateCatalogSource: React.FC = withHandlePromise(
     };
 
     const { t } = useTranslation();
-    const availabilityKinds = [
+    const availabilityKinds: RadioGroupItems = [
       {
+        name: 'catalog-source-availability',
         value: AvailabilityValue.ALL_NAMESPACES,
-        title: t('olm~Cluster-wide CatalogSource'),
-        desc: t('olm~Catalog will be available in all namespaces'),
+        label: t('olm~Cluster-wide CatalogSource'),
+        description: t('olm~Catalog will be available in all namespaces'),
       },
       {
+        name: 'catalog-source-availability',
         value: AvailabilityValue.SINGLE_NAMESPACE,
-        title: t('olm~Namespaced CatalogSource'),
-        desc: t('olm~Catalog will only be available in a single namespace'),
+        label: t('olm~Namespaced CatalogSource'),
+        description: t('olm~Catalog will only be available in a single namespace'),
       },
     ];
 
